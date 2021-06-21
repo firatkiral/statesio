@@ -65,3 +65,23 @@ multiplyState.subscribe((state)=>{
 })
 
 weight.set(6);
+
+multiplyState = new State()
+vec1.connect(multiplyState)
+vec2.connect(multiplyState)
+weight.connect(multiplyState)
+
+multiplyState.setComputeAsyncFn((v1, v2, w) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            let out = new Vector3(v1.x * v2.x * w, v1.y * v2.y * w, v1.z * v2.z * w);
+          resolve(out);
+        }, 3000);
+      });
+});
+
+multiplyState.getAsync().then((res)=>{
+    console.log("resultAsync: ", res);
+})
+
+console.log("result: ", multiplyState.get());

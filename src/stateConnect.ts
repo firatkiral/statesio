@@ -1,16 +1,16 @@
 export class State<T>{
     valid: boolean = true
-    private subscribers: Array<(state:State<T>) => void> = []
+    private subscribers: Array<(state: State<T>) => void> = []
 
     #inputs: State<any>[] = []
-    #hook: (state:State<T>) => void = () => this.invalidate()
+    #hook: (state: State<T>) => void = () => this.invalidate()
     #cache?: T
 
     constructor(cache?: T) {
         this.#cache = cache
     }
 
-    subscribe(listener: (state:State<T>) => void){
+    subscribe(listener: (state: State<T>) => void) {
         if (this.subscribers.indexOf(listener) === -1) {
             this.subscribers.push(listener)
             if (!this.valid) {
@@ -21,7 +21,7 @@ export class State<T>{
         return this
     }
 
-    unsubscribe(listener: (state:State<T>) => void){
+    unsubscribe(listener: (state: State<T>) => void) {
         let index: number = this.subscribers.indexOf(listener)
 
         if (index !== -1) {
@@ -79,11 +79,12 @@ export class State<T>{
         this.invalidate()
     }
 
-    get(): T | undefined {
+    get() {
         if (!this.valid) {
             this.#cache = this.#compute(...this.#inputs.map(input => input.get()))
             this.validate()
             this.onValidate()
+
         }
         return this.#cache
     }
@@ -92,6 +93,29 @@ export class State<T>{
 
     setComputeFn(computeFn: (...args: any) => T) {
         this.#compute = computeFn
+    }
+
+    async getAsync() {
+        return new Promise<T>((resolve: (value: any) => void, reject: (reason?: any) => void) => {
+            if (!this.valid) {
+                try {
+                    this.#computeAsync(...this.#inputs.map(input => input.get())).then((res) => {
+                        this.#cache = res
+                        this.validate()
+                        this.onValidate()
+                        resolve(this.#cache)
+                    })
+
+                } catch (error) {
+                    reject(error)
+                }
+            }
+        })
+    }
+
+    #computeAsync: (...args: any) => Promise<T> = () => new Promise<T>((resolve:(value: any) => void) => resolve(this.#cache))
+    setComputeAsyncFn(computeAsyncFn: (...args: any) => Promise<T>) {
+        this.#computeAsync = computeAsyncFn
     }
 
 }
