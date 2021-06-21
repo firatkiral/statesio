@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "declaration": true,
+        "module": "commonjs",
+        "target": "es6",
+        "outDir": "build"
+    },
+    "exclude": [
+        "node_modules",
+        "build",
+        "dist",
+    ],
+    "include": [
+        "src/**/*"
+    ]
+}

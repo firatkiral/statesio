@@ -1,0 +1,14 @@
+{
+  "name": "stateconnect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/stateConnect.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Firat Kiral",
+  "license": "CC-BY-ND-4.0",
+  "dependencies": {
+    "typescript": "^4.3.4"
+  }
+}
