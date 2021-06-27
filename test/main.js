@@ -1,7 +1,7 @@
 const { State } = require("../build/stateConnect.js");
 
-let firstnameState = new State("firat");
-let lastnameState = new State("kiral");
+let firstnameState = new State("John");
+let lastnameState = new State("Doe");
 
 let fullnameState = new State();
 firstnameState.connect(fullnameState);
@@ -15,7 +15,7 @@ fullnameState.setComputeFn((firstname, lastname) => {
 console.log(fullnameState.get());
 console.log(fullnameState.get());
 
-firstnameState.set("ece");
+firstnameState.set("Maria");
 console.log(fullnameState.get());
 console.log(fullnameState.get());
 
