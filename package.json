@@ -9,6 +9,7 @@
   "author": "Firat Kiral",
   "license": "CC-BY-ND-4.0",
   "dependencies": {
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.4",
+    "undokit": "^1.0.6"
   }
 }

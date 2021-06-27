@@ -1,3 +1,5 @@
+import {UndoKit} from "undokit"
+
 export class State<T>{
     valid: boolean = true
     private subscribers: Array<(state: State<T>) => void> = []
@@ -5,6 +7,11 @@ export class State<T>{
     #inputs: State<any>[] = []
     #hook: (state: State<T>) => void = () => this.invalidate()
     #cache?: T
+
+    static undoKit = new UndoKit()
+    static withUndo = true
+    static undo = () => State.undoKit.undo()
+    static redo = () => State.undoKit.redo()
 
     constructor(cache?: T) {
         this.#cache = cache
@@ -75,8 +82,24 @@ export class State<T>{
     }
 
     set(newValue: T) {
-        this.#cache = newValue
-        this.invalidate()
+        if(State.withUndo){
+            let oldValue = this.#cache
+            let setCmd = {
+                redo:()=>{
+                    this.#cache = newValue
+                    this.invalidate()
+                },
+                undo:()=>{
+                    this.#cache = oldValue
+                    this.invalidate()
+                }
+            }
+            State.undoKit.push(setCmd)
+        }
+        else{
+            this.#cache = newValue
+            this.invalidate()
+        }
     }
 
     get() {
@@ -113,7 +136,7 @@ export class State<T>{
         })
     }
 
-    #computeAsync: (...args: any) => Promise<T> = () => new Promise<T>((resolve:(value: any) => void) => resolve(this.#cache))
+    #computeAsync: (...args: any) => Promise<T> = () => new Promise<T>((resolve: (value: any) => void) => resolve(this.#cache))
     setComputeAsyncFn(computeAsyncFn: (...args: any) => Promise<T>) {
         this.#computeAsync = computeAsyncFn
     }
