@@ -1,4 +1,4 @@
-const { State } = require("../../dist/stateConnect.js");
+const { State } = require("../../dist/stateConnect.cjs");
 
 let firstnameState = new State("John");
 let lastnameState = new State("Doe");

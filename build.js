@@ -3,8 +3,8 @@ const fs = require("fs-extra");
 
 function process(ext = "js") {
     !fs.existsSync(`./dist`) && fs.mkdirSync(`./dist`);
-    fs.renameSync(`./build/undoKit.js`, `./dist/undoKit.${ext}`);
-    fs.renameSync(`./build/undoKit.d.ts`, `./dist/undoKit.d.ts`);
+    fs.renameSync(`./build/stateConnect.js`, `./dist/stateConnect.${ext}`);
+    fs.renameSync(`./build/stateConnect.d.ts`, `./dist/stateConnect.d.ts`);
 }
 
 // Node
