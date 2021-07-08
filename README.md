@@ -37,7 +37,7 @@ firstnameState.subscribe((state) => {
     console.log(`Firstname changed to: ${state.get()}`);
 });
 
-firstnameState.set(("Frank"))
+firstnameState.set("Frank")
 // Output: Firstname changed to: Frank
 ```
 
@@ -65,7 +65,7 @@ console.log(fullnameState.get());
 ```
 State uses lazy evaluation algorithm. Value wont be computed until it is called. It will only be computed once at the first call. Any other consecutive calls receive cached value. This saves lots of computation power and time if app has heavy calculations or too many states. 
 
-Compute function wll receive all connected state values as parameter with the connection order. In this example setComputeFn passes firstname and lastname as parameter since these are the only connected states. 
+Compute function will receive all connected state values as parameter with the connection order. In this example `setComputeFn` passes firstname and lastname as parameter since these are the only connected states. 
 
 StateConnect has built-in undo manager and enabled by default. It can be set by changing static `withUndo` variable.
 ```javascript
@@ -90,7 +90,7 @@ console.log(fullnameState.get());
 
 Actions can be undone and redone simply by calling static undo and redo functions as shown above. Also history limit can be changed from static undokit object stored in the State. Please check [UndoKit](https://github.com/firatkiral/UndoKit) library for more info about undo management.
 
-StateConnect supports async computations. Computation function might do some server side calls etc. that requires async operation.
+StateConnect supports async computations. Computation function might need some server side calls etc. that requires async operation. 
 
 ```javascript
 var userIdState = new State("usr324563");
@@ -115,5 +115,5 @@ userObjAsyncState.getAsync().then((res) => {
 // Output: resultAsync:  { uId: 'usr324563', firstname: 'John', lastname: 'Doe' }
 ```
 
-To be able to do async computations we need to use `setComputeAsyncFn` and `getAsync` functions. Compute function must return promise object as shown above. setTimeout function is used here test purposes to simulate server call delay. We call async state values by getAsync function.
+To be able to do async computations we need to use `setComputeAsyncFn` and `getAsync` functions. Compute function must return promise object as shown above. `setTimeout` function is used here for test purposes to simulate server call delay. We call async state values by getAsync function.
 
