@@ -1,6 +1,6 @@
 {
     "name": "stateconnect",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "State manager.",
     "author": "Firat Kiral",
     "license": "MIT",
@@ -22,7 +22,7 @@
         "test": "node examples/node/main"
     },
     "dependencies": {
-        "undokit": "^1.0.9"
+        "undokit": "latest"
     },
     "devDependencies": {
         "fs-extra": "^10.0.0",
