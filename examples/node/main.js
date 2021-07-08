@@ -1,4 +1,4 @@
-const { State } = require("../build/stateConnect.js");
+const { State } = require("../../dist/stateConnect.js");
 
 let firstnameState = new State("John");
 let lastnameState = new State("Doe");

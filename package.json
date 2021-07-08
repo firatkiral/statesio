@@ -1,18 +1,38 @@
 {
     "name": "stateconnect",
     "version": "1.0.0",
-    "description": "",
-    "main": "dist/stateConnect.js",
-    "scripts": {
-        "build": "tsc",
-        "test": "node test/main"
-    },
+    "description": "Lazy evaluated state manager.",
     "author": "Firat Kiral",
     "license": "MIT",
+    "keywords": [
+        "state",
+        "connect",
+        "evaluation"
+    ],
+    "main": "dist/stateConnect.cjs",
+    "types": "dist/stateConnect.d.ts",
+    "files": [
+        "dist/stateConnect.cjs",
+        "dist/stateConnect.d.ts",
+        "dist/stateConnect.mjs",
+        "examples/**/*"
+    ],
+    "scripts": {
+        "build": "node build.js",
+        "test": "node test/main"
+    },
     "dependencies": {
         "undokit": "^1.0.9"
     },
     "devDependencies": {
         "typescript": "^4.3.4"
-    }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/firatkiral/StateConnect.git"
+    },
+    "bugs": {
+        "url": "https://github.com/firatkiral/StateConnect/issues"
+    },
+    "homepage": "https://github.com/firatkiral/StateConnect#readme"
 }

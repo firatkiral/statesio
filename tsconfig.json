@@ -2,9 +2,10 @@
     "compilerOptions": {
         "strict": true,
         "declaration": true,
-        "module": "commonjs",
+        "module": "es6",
         "target": "es6",
-        "outDir": "build"
+        "outDir": "build",
+        "moduleResolution": "node"
     },
     "exclude": [
         "node_modules",
@@ -12,6 +13,6 @@
         "dist",
     ],
     "include": [
-        "src/**/*"
+        "src/stateConnect.ts"
     ]
 }
