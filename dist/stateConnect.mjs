@@ -71,18 +71,26 @@ export class State {
     }
     onInvalidate() { }
     onValidate() { }
-    isConnected() {
+    isHooked() {
         return __classPrivateFieldGet(this, _State_inputs, "f").length > 0;
     }
-    connect(input) {
+    hook(input) {
         this.subscribe(__classPrivateFieldGet(input, _State_hook, "f"));
         __classPrivateFieldGet(input, _State_inputs, "f").push(this);
         input.invalidate();
+        return this;
     }
-    disconnect(idx) {
+    addHook(...args) {
+        args.forEach(input => {
+            input.hook(this);
+        });
+        return this;
+    }
+    removeHook(idx) {
         __classPrivateFieldGet(this, _State_inputs, "f")[idx].unsubscribe(__classPrivateFieldGet(this, _State_hook, "f"));
         __classPrivateFieldGet(this, _State_inputs, "f").splice(idx, 1);
         this.invalidate();
+        return this;
     }
     set(newValue) {
         if (State.withUndo) {
@@ -103,6 +111,7 @@ export class State {
             __classPrivateFieldSet(this, _State_cache, newValue, "f");
             this.invalidate();
         }
+        return this;
     }
     get() {
         if (!this.valid) {
@@ -114,6 +123,7 @@ export class State {
     }
     setComputeFn(computeFn) {
         __classPrivateFieldSet(this, _State_compute, computeFn, "f");
+        return this;
     }
     getAsync() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -136,6 +146,7 @@ export class State {
     }
     setComputeAsyncFn(computeAsyncFn) {
         __classPrivateFieldSet(this, _State_computeAsync, computeAsyncFn, "f");
+        return this;
     }
 }
 _State_inputs = new WeakMap(), _State_hook = new WeakMap(), _State_cache = new WeakMap(), _State_compute = new WeakMap(), _State_computeAsync = new WeakMap();

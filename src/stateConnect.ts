@@ -1,3 +1,5 @@
+import {UndoKit} from "undokit"
+
 export class State<T>{
     valid: boolean = true
     private subscribers: Array<(state: State<T>) => void> = []
@@ -5,6 +7,11 @@ export class State<T>{
     #inputs: State<any>[] = []
     #hook: (state: State<T>) => void = () => this.invalidate()
     #cache?: T
+
+    static undoKit = new UndoKit()
+    static withUndo = true
+    static undo = () => State.undoKit.undo()
+    static redo = () => State.undoKit.redo()
 
     constructor(cache?: T) {
         this.#cache = cache
@@ -58,25 +65,51 @@ export class State<T>{
 
     onValidate() { }
 
-    isConnected(): boolean {
+    isHooked(): boolean {
         return this.#inputs.length > 0
     }
 
-    connect(input: State<T>) {
+    hook(input: State<T>) {
         this.subscribe(input.#hook)
         input.#inputs.push(this)
         input.invalidate()
+        return this
     }
 
-    disconnect(idx: number) {
+    addHook(...args: State<T>[]){
+        args.forEach(input=>{
+            input.hook(this)
+        })
+        return this
+    }
+
+    removeHook(idx: number) {
         this.#inputs[idx].unsubscribe(this.#hook)
         this.#inputs.splice(idx, 1)
         this.invalidate()
+        return this
     }
 
     set(newValue: T) {
-        this.#cache = newValue
-        this.invalidate()
+        if(State.withUndo){
+            let oldValue = this.#cache
+            let setCmd = {
+                redo:()=>{
+                    this.#cache = newValue
+                    this.invalidate()
+                },
+                undo:()=>{
+                    this.#cache = oldValue
+                    this.invalidate()
+                }
+            }
+            State.undoKit.push(setCmd)
+        }
+        else{
+            this.#cache = newValue
+            this.invalidate()
+        }
+        return this
     }
 
     get() {
@@ -93,6 +126,7 @@ export class State<T>{
 
     setComputeFn(computeFn: (...args: any) => T) {
         this.#compute = computeFn
+        return this
     }
 
     async getAsync() {
@@ -116,6 +150,7 @@ export class State<T>{
     #computeAsync: (...args: any) => Promise<T> = () => new Promise<T>((resolve:(value: any) => void) => resolve(this.#cache))
     setComputeAsyncFn(computeAsyncFn: (...args: any) => Promise<T>) {
         this.#computeAsync = computeAsyncFn
+        return this
     }
 
 }

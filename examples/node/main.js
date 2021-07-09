@@ -1,54 +1,101 @@
 const { State } = require("../../dist/stateConnect.cjs");
 
-var firstnameState = new State("John");
-
-firstnameState.subscribe(() => {
-    console.log(`Firstname changed to: ${firstnameState.get()}`);
+//** ### Creating simple state */
+var userState = new State({
+    username: 'johndoe',
+    email: 'johndoe@example.com',
+    membership: 'basic'
 });
 
-firstnameState.set(("Doe"))
-// output: Firstname changed to: Doe
+// Subscribe to changes on userState, this way we'll be notified any time userState is changed.
+userState.subscribe((state) => {
+    console.log(`User has been updated:\n`, state.get());
+});
+
+// Change membership
+userState.set({
+    ...userState.get(), 
+    membership: 'platinium'
+});
+// Output: User has been updated: 
+// {
+//     username: 'johndoe',
+//     email: 'johndoe@example.com',
+//     membership: 'platinium'
+// }
 
 
+//** ### Connecting states and setting custom computation */
+var usernameState = new State("johndoe");
+var emailState = new State("johndoe@example.com");
+var membershipState = new State("basic");
 
-var firstnameState = new State("John");
-var lastnameState = new State("Doe");
+var userState = new State();
+userState.addHook(usernameState, emailState, membershipState);
 
-var fullnameState = new State();
-firstnameState.connect(fullnameState);
-lastnameState.connect(fullnameState);
-
-fullnameState.setComputeFn((firstname, lastname) => {
+userState.setComputeFn((username, email, membership) => {
     console.log("Computed.");
-    return `Fullname: ${firstname} ${lastname}`;
+    return {
+        username,
+        email,
+        membership
+    };
 });
 
-console.log(fullnameState.get());
+console.log(userState.get());
 // Output: Computed.
-// Fullname: John Doe
-console.log(fullnameState.get());
-// Output: Fullname: John Doe
+// {
+//     username: 'johndoe',
+//     email: 'johndoe@example.com',
+//     membership: 'basic'
+// }
 
+membershipState.set('platinium')
+console.log(userState.get());
+// Output:  Computed.
+// {
+//     username: 'johndoe',
+//     email: 'johndoe@example.com',
+//     membership: 'platinium'
+// }
+
+// It will return the cached value since nothing is changed and wont print 'Computed.'.
+console.log(userState.get());
+// Output:
+// {
+//     username: 'johndoe',
+//     email: 'johndoe@example.com',
+//     membership: 'platinium'
+// }
+
+//** ### Undo/Redo history */
 State.withUndo = true
-firstnameState.set("Maria");
-console.log(fullnameState.get());
+State.undoKit.setLimit(150)
+
+State.undo();
+console.log("Action undone: \n",userState.get());
 // Output: Computed.
-// Fullname: Maria Doe
+// Action undone:
+//  {
+//   username: 'johndoe',
+//   email: 'johndoe@example.com',
+//   membership: 'basic'
+// }
 
-State.undo()
-console.log(fullnameState.get());
+State.redo();
+console.log("Action redone: \n",userState.get());
 // Output: Computed.
-// Fullname: John Doe
+// Action redone:
+//  {
+//   username: 'johndoe',
+//   email: 'johndoe@example.com',
+//   membership: 'platinium'
+// }
 
-State.redo()
-console.log(fullnameState.get());
-// Output: Computed.
-// Fullname: Maria Doe
-
-
+//** ### Async computation */
 var userIdState = new State("usr324563");
 var userObjAsyncState = new State();
-userIdState.connect(userObjAsyncState)
+userIdState.hook(userObjAsyncState);
 
 userObjAsyncState.setComputeAsyncFn((userId) => {
     return new Promise((resolve, reject) => {
@@ -87,9 +134,7 @@ var vec2 = new State(new Vector3(2, 2, 2));
 var weight = new State(2);
 
 var multiplyState = new State();
-vec1.connect(multiplyState);
-vec2.connect(multiplyState);
-weight.connect(multiplyState);
+multiplyState.addHook(vec1, vec2, weight);
 
 multiplyState.setComputeFn((v1, v2, w) => {
     var out = new Vector3(v1.x * v2.x * w, v1.y * v2.y * w, v1.z * v2.z * w);
@@ -115,9 +160,7 @@ multiplyState.subscribe((state) => {
 weight.set(6);
 
 multiplyState = new State();
-vec1.connect(multiplyState);
-vec2.connect(multiplyState);
-weight.connect(multiplyState);
+multiplyState.addHook(vec1, vec2, weight);
 
 multiplyState.setComputeAsyncFn((v1, v2, w) => {
     return new Promise((resolve, reject) => {

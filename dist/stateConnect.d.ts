@@ -15,12 +15,13 @@ export declare class State<T> {
     protected invalidate(): void;
     onInvalidate(): void;
     onValidate(): void;
-    isConnected(): boolean;
-    connect(input: State<T>): void;
-    disconnect(idx: number): void;
-    set(newValue: T): void;
+    isHooked(): boolean;
+    hook(input: State<T>): this;
+    addHook(...args: State<T>[]): this;
+    removeHook(idx: number): this;
+    set(newValue: T): this;
     get(): T | undefined;
-    setComputeFn(computeFn: (...args: any) => T): void;
+    setComputeFn(computeFn: (...args: any) => T): this;
     getAsync(): Promise<T>;
-    setComputeAsyncFn(computeAsyncFn: (...args: any) => Promise<T>): void;
+    setComputeAsyncFn(computeAsyncFn: (...args: any) => Promise<T>): this;
 }

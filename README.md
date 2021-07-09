@@ -28,69 +28,123 @@ For web, it can also be imported from path. StateConnect relies on ES modules, a
 </script>
 ```
 
-## Usage
+## Node Usage
+
+### Creating simple state:
 
 ```javascript
-var firstnameState = new State("John");
+const { State } = require("stateconnect")
 
-firstnameState.subscribe((state) => {
-    console.log(`Firstname changed to: ${state.get()}`);
+var userState = new State({
+    username: 'johndoe',
+    email: 'johndoe@example.com',
+    membership: 'basic'
 });
 
-firstnameState.set("Frank")
-// Output: Firstname changed to: Frank
+// Subscribe to changes on userState, this way we'll be notified any time nameState is changed.
+userState.subscribe((state) => {
+    console.log(`User has been updated:\n`, state.get());
+});
+
+// Change membership
+userState.set({
+    ...userState.get(), 
+    membership: 'platinium'
+});
+// Output: User has been updated: 
+// {
+//     username: 'johndoe',
+//     email: 'johndoe@example.com',
+//     membership: 'platinium'
+// }
 ```
 
-We create state by just giving a initial value which is "John" in current case. When we set new name to firstnameState subscriber is notified and prints new name. It will pass state itself as a parameter to subscribe function.
+We create state by just giving an initial value. In this case we have user object which holds our user properties. When we set new value to userState, subscriber is notified and prints new user object. It passes state itself as a parameter to subscribe function. This way we can get state value inside the function scope.
 
-We can connect states by setting custom computation function.
+### Connecting states and setting custom computation:
+We are not limited to one state object that holds all states. We can create micro states for each property and connect them to one final state. This way whenever micro state is changed, final state will update itself automatically by the given compute function. This will allow us freedom to update micro states individually without touching other states and prevent accidental value updates for other states.
+
 ```javascript
-var firstnameState = new State("John");
-var lastnameState = new State("Doe");
+var usernameState = new State("johndoe");
+var emailState = new State("johndoe@example.com");
+var membershipState = new State("basic");
 
-var fullnameState = new State();
-firstnameState.connect(fullnameState);
-lastnameState.connect(fullnameState);
+var userState = new State();
+userState.addHook(usernameState, emailState, membershipState);
 
-fullnameState.setComputeFn((firstname, lastname) => {
+userState.setComputeFn((username, email, membership) => {
     console.log("Computed.");
-    return `Fullname: ${firstname} ${lastname}`;
+    return {
+        username,
+        email,
+        membership
+    };
 });
 
-console.log(fullnameState.get());
+console.log(userState.get());
 // Output: Computed.
-// Fullname: John Doe
-console.log(fullnameState.get());
-// Output: Fullname: John Doe
+// {
+//     username: 'johndoe',
+//     email: 'johndoe@example.com',
+//     membership: 'basic'
+// }
+
+membershipState.set('platinium')
+console.log(userState.get());
+// Output:  Computed.
+// {
+//     username: 'johndoe',
+//     email: 'johndoe@example.com',
+//     membership: 'platinium'
+// }
 ```
-State uses lazy evaluation algorithm. Value wont be computed until it is called. It will only be computed once at the first call. Any other consecutive calls receive cached value. This saves lots of computation power and time if app has heavy calculations or too many states. 
 
-Compute function will receive all connected state values as parameter with the connection order. In this example `setComputeFn` passes firstname and lastname as parameter since these are the only connected states. 
+Compute function will receive all connected state values as parameter with the connection order. In this example `setComputeFn` passes usernameState, emailState and membershipState as parameter since these are the only connected states.
 
-StateConnect has built-in undo manager and enabled by default. It can be set by changing static `withUndo` variable.
+Another thing is StateConnect uses lazy evaluation algorithm. It means value won't be computed until it is called. It will be computed only once at the first call. Any other consecutive calls will receive cached value. This saves lots of computation power and time if app has heavy calculations or has too many states. If we try to call userstate again you'll notice that it wont print 'Computed.' again since its calling it from cache.
+
+```javascript
+// It will return the cached value since nothing is changed and wont print 'Computed.'.
+console.log(userState.get());
+// Output:
+// {
+//     username: 'johndoe',
+//     email: 'johndoe@example.com',
+//     membership: 'platinium'
+// }
+```
+### Undo/Redo history:
+StateConnect has built-in undo manager and enabled by default. It can be set by changing static `withUndo` variable. Also history limit can be changed from static undokit object stored in the State. Please check [UndoKit](https://github.com/firatkiral/UndoKit) library for more info about undo management.
 ```javascript
 State.withUndo = true
 State.undoKit.setLimit(150)
-
-firstnameState.set("Maria");
-console.log(fullnameState.get());
-// Output: Computed.
-// Fullname: Maria Doe
-
-State.undo()
-console.log(fullnameState.get());
-// Output: Computed.
-// Fullname: John Doe
-
-State.redo()
-console.log(fullnameState.get());
-// Output: Computed.
-// Fullname: Maria Doe
 ```
 
-Actions can be undone and redone simply by calling static undo and redo functions as shown above. Also history limit can be changed from static undokit object stored in the State. Please check [UndoKit](https://github.com/firatkiral/UndoKit) library for more info about undo management.
+All actions can be undone and redone simply by calling static undo and redo functions as shown below.
+```javascript
+State.undo();
+console.log("Action undone: \n",userState.get());
+// Output: Computed.
+// Action undone:
+//  {
+//   username: 'johndoe',
+//   email: 'johndoe@example.com',
+//   membership: 'basic'
+// }
 
-StateConnect supports async computations. Computation function might need some server side calls etc. that requires async operation. 
+State.redo();
+console.log("Action redone: \n",userState.get());
+// Output: Computed.
+// Action redone:
+//  {
+//   username: 'johndoe',
+//   email: 'johndoe@example.com',
+//   membership: 'platinium'
+// }
+```
+
+ ### Async computation:
+StateConnect supports async computations where application needs to do some server side calls etc. that requires async operation. We achieve this by using `setComputeAsyncFn` and `getAsync` functions as shown below.
 
 ```javascript
 var userIdState = new State("usr324563");
@@ -99,6 +153,7 @@ userIdState.connect(userObjAsyncState)
 
 userObjAsyncState.setComputeAsyncFn((userId) => {
     return new Promise((resolve, reject) => {
+        // Assume we made server call and received new user object
         setTimeout(() => {
             resolve({
                 uId: "usr324563",
@@ -115,5 +170,6 @@ userObjAsyncState.getAsync().then((res) => {
 // Output: resultAsync:  { uId: 'usr324563', firstname: 'John', lastname: 'Doe' }
 ```
 
-To be able to do async computations we need to use `setComputeAsyncFn` and `getAsync` functions. Compute function must return promise object as shown above. `setTimeout` function is used here for test purposes to simulate server call delay. We call async state values by getAsync function.
+Compute function must return promise object as shown above. `setTimeout` function is used here for test purposes to simulate server call delay. We call async state values by getAsync function.
 
+## Web Usage
