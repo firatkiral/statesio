@@ -62,7 +62,7 @@ userState.set({
 We create state by just giving an initial value. In this case we have user object which holds our user properties. When we set new value to userState, subscriber is notified and prints new user object. It passes state itself as a parameter to subscribe function. This way we can get state value inside the function scope.
 
 ### Connecting states and setting custom computation:
-We are not limited to one state object that holds all states. We can create micro states for each property and connect them to one final state. This way whenever micro state is changed, final state will update itself automatically by the given compute function. This will allow us freedom to update micro states individually without touching other states and prevent accidental value updates for other states.
+We are not limited to one state object that holds all states. We can create micro states for each property and connect them to one final state. This way whenever micro state is changed, final state will update itself automatically and return array that holds all connected values by connection order. This will allow us freedom to update micro states individually without touching other states and prevent accidental value updates for other states.
 
 ```javascript
 var usernameState = new State("johndoe");
@@ -72,6 +72,13 @@ var membershipState = new State("basic");
 var userState = new State();
 userState.addHook(usernameState, emailState, membershipState);
 
+console.log(userState.get());
+// [ 'johndoe', 'johndoe@example.com', 'basic' ]
+```
+
+We can also set custom computation function. This way when final state will update itself by the given compute function.
+
+```javascript
 userState.setComputeFn((username, email, membership) => {
     console.log("Computed.");
     return {

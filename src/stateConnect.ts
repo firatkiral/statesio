@@ -6,7 +6,7 @@ export class State<T>{
 
     #inputs: State<any>[] = []
     #hook: (state: State<T>) => void = () => this.invalidate()
-    #cache?: T
+    #cache?: T | any[]
 
     static undoKit = new UndoKit()
     static withUndo = true
@@ -122,10 +122,10 @@ export class State<T>{
         return this.#cache
     }
 
-    #compute: (...args: any) => T | undefined = () => this.#cache
-
-    setComputeFn(computeFn: (...args: any) => T) {
-        this.#compute = computeFn
+    #compute: (...args: any) => any[] | T | undefined = () => this.#inputs.length > 0 ? this.#inputs.map(input => input.get()) : this.#cache
+    setComputeFn(computeFn?: (...args: any) => any[] | T) {
+        this.#compute = computeFn ? computeFn : () => this.#inputs.length > 0 ? this.#inputs.map(input => input.get()) : this.#cache
+        this.invalidate()
         return this
     }
 
@@ -147,10 +147,10 @@ export class State<T>{
         })
     }
 
-    #computeAsync: (...args: any) => Promise<T> = () => new Promise<T>((resolve:(value: any) => void) => resolve(this.#cache))
-    setComputeAsyncFn(computeAsyncFn: (...args: any) => Promise<T>) {
-        this.#computeAsync = computeAsyncFn
+    #computeAsync: (...args: any) => Promise<T> = () => new Promise<T>((resolve:(value: any) => void) => resolve(this.#inputs.length > 0 ? this.#inputs.map(input => input.get()) : this.#cache))
+    setComputeAsyncFn(computeAsyncFn?: (...args: any) => Promise<T>) {
+        this.#computeAsync = computeAsyncFn ? computeAsyncFn : () => new Promise<T>((resolve:(value: any) => void) => resolve(this.#inputs.length > 0 ? this.#inputs.map(input => input.get()) : this.#cache))
+        this.invalidate()
         return this
     }
-
 }

@@ -33,6 +33,9 @@ var membershipState = new State("basic");
 var userState = new State();
 userState.addHook(usernameState, emailState, membershipState);
 
+console.log(userState.get());
+// [ 'johndoe', 'johndoe@example.com', 'basic' ]
+
 userState.setComputeFn((username, email, membership) => {
     console.log("Computed.");
     return {

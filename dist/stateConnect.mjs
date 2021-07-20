@@ -27,8 +27,8 @@ export class State {
         _State_inputs.set(this, []);
         _State_hook.set(this, () => this.invalidate());
         _State_cache.set(this, void 0);
-        _State_compute.set(this, () => __classPrivateFieldGet(this, _State_cache, "f"));
-        _State_computeAsync.set(this, () => new Promise((resolve) => resolve(__classPrivateFieldGet(this, _State_cache, "f"))));
+        _State_compute.set(this, () => __classPrivateFieldGet(this, _State_inputs, "f").length > 0 ? __classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get()) : __classPrivateFieldGet(this, _State_cache, "f"));
+        _State_computeAsync.set(this, () => new Promise((resolve) => resolve(__classPrivateFieldGet(this, _State_inputs, "f").length > 0 ? __classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get()) : __classPrivateFieldGet(this, _State_cache, "f"))));
         __classPrivateFieldSet(this, _State_cache, cache, "f");
     }
     subscribe(listener) {
@@ -122,7 +122,8 @@ export class State {
         return __classPrivateFieldGet(this, _State_cache, "f");
     }
     setComputeFn(computeFn) {
-        __classPrivateFieldSet(this, _State_compute, computeFn, "f");
+        __classPrivateFieldSet(this, _State_compute, computeFn ? computeFn : () => __classPrivateFieldGet(this, _State_inputs, "f").length > 0 ? __classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get()) : __classPrivateFieldGet(this, _State_cache, "f"), "f");
+        this.invalidate();
         return this;
     }
     getAsync() {
@@ -145,7 +146,8 @@ export class State {
         });
     }
     setComputeAsyncFn(computeAsyncFn) {
-        __classPrivateFieldSet(this, _State_computeAsync, computeAsyncFn, "f");
+        __classPrivateFieldSet(this, _State_computeAsync, computeAsyncFn ? computeAsyncFn : () => new Promise((resolve) => resolve(__classPrivateFieldGet(this, _State_inputs, "f").length > 0 ? __classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get()) : __classPrivateFieldGet(this, _State_cache, "f"))), "f");
+        this.invalidate();
         return this;
     }
 }

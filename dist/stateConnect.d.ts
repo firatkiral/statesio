@@ -20,8 +20,8 @@ export declare class State<T> {
     addHook(...args: State<T>[]): this;
     removeHook(idx: number): this;
     set(newValue: T): this;
-    get(): T | undefined;
-    setComputeFn(computeFn: (...args: any) => T): this;
+    get(): any[] | T | undefined;
+    setComputeFn(computeFn?: (...args: any) => any[] | T): this;
     getAsync(): Promise<T>;
-    setComputeAsyncFn(computeAsyncFn: (...args: any) => Promise<T>): this;
+    setComputeAsyncFn(computeAsyncFn?: (...args: any) => Promise<T>): this;
 }
