@@ -69,14 +69,14 @@ export class State<T>{
         return this.#inputs.length > 0
     }
 
-    hook(input: State<T>) {
+    hook(input: State<any>) {
         this.subscribe(input.#hook)
         input.#inputs.push(this)
         input.invalidate()
         return this
     }
 
-    addHook(...args: State<T>[]){
+    addHook(...args: State<any>[]){
         args.forEach(input=>{
             input.hook(this)
         })
