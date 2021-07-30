@@ -9,7 +9,7 @@ export class State<T>{
     #cache?: T | any[]
 
     static undoKit = new UndoKit()
-    static withUndo = true
+    static withUndo = false
     static undo = () => State.undoKit.undo()
     static redo = () => State.undoKit.redo()
 
