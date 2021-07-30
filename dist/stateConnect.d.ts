@@ -16,8 +16,8 @@ export declare class State<T> {
     onInvalidate(): void;
     onValidate(): void;
     isHooked(): boolean;
-    hook(input: State<T>): this;
-    addHook(...args: State<T>[]): this;
+    hook(input: State<any>): this;
+    addHook(...args: State<any>[]): this;
     removeHook(idx: number): this;
     set(newValue: T): this;
     get(): any[] | T | undefined;

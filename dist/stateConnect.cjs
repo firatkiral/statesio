@@ -157,6 +157,6 @@ class State {
 exports.State = State;
 _State_inputs = new WeakMap(), _State_hook = new WeakMap(), _State_cache = new WeakMap(), _State_compute = new WeakMap(), _State_computeAsync = new WeakMap();
 State.undoKit = new undokit_1.UndoKit();
-State.withUndo = true;
+State.withUndo = false;
 State.undo = () => State.undoKit.undo();
 State.redo = () => State.undoKit.redo();
