@@ -121,7 +121,7 @@ console.log(userState.get());
 // }
 ```
 ### Undo/Redo history:
-StateConnect has built-in undo manager and enabled by default. It can be set by changing static `withUndo` variable. Also history limit can be changed from static undokit object stored in the State. Please check [UndoKit](https://github.com/firatkiral/UndoKit) library for more info about undo management.
+StateConnect has built-in undo manager and disabled by default. It can be set by changing static `withUndo` variable. Also history limit can be changed from static undokit object stored in the State. Please check [UndoKit](https://github.com/firatkiral/UndoKit) library for more info about undo management.
 ```javascript
 State.withUndo = true
 State.undoKit.setLimit(150)
