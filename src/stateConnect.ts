@@ -1,7 +1,6 @@
 export class State<T>{
     valid: boolean = true
-    private postSubscribers: Array<(property: T | undefined) => void> = []
-    private preSubscribers: Array<(property: T | undefined) => void> = []
+    private subscribers: Array<(property: T | undefined) => void> = []
 
     #name = ''
 
@@ -23,40 +22,25 @@ export class State<T>{
         return this.#name
     }
 
-    addSubscriber(listener: (property: T | undefined) => void, preChange = false) {
-        preChange ? this._subscribePre(listener) : this._subscribePost(listener)
-        return this
-    }
-
-    private _subscribePre(listener: (property: T | undefined) => void) {
-        if (this.preSubscribers.indexOf(listener) === -1) {
-            this.preSubscribers.push(listener)
-        }
-    }
-
-    private _subscribePost(listener: (property: T | undefined) => void) {
-        if (this.postSubscribers.indexOf(listener) === -1) {
-            this.postSubscribers.push(listener)
+    addSubscriber(listener: (property: T | undefined) => void) {
+        if (this.subscribers.indexOf(listener) === -1) {
+            this.subscribers.push(listener)
             listener(this.get())
         }
     }
 
     removeSubscriber(listener: (property: T | undefined) => void) {
-        let index = this.postSubscribers.indexOf(listener)
+        let index = this.subscribers.indexOf(listener)
         if (index !== -1) {
-            this.postSubscribers.splice(index, 1)
+            this.subscribers.splice(index, 1)
         }
 
-        index = this.preSubscribers.indexOf(listener)
-        if (index !== -1) {
-            this.preSubscribers.splice(index, 1)
-        }
         return this
     }
 
     clearSubscribers() {
-        for (let idx in this.postSubscribers) {
-            this.removeSubscriber(this.postSubscribers[0])
+        for (let idx in this.subscribers) {
+            this.removeSubscriber(this.subscribers[0])
         }
         return this
     }
@@ -68,17 +52,11 @@ export class State<T>{
         }
     }
 
-    protected invalidatePre() {
-        for (let listener of this.preSubscribers) {
-            listener(this.get())
-        }
-    }
-
     protected invalidate() {
         if (this.valid) {
             this.valid = false
             this.onInvalidate()
-            for (let listener of this.postSubscribers) {
+            for (let listener of this.subscribers) {
                 listener(this.get())
             }
         }
@@ -93,12 +71,21 @@ export class State<T>{
             input.addSubscriber(this.#hook)
             this.#inputs.push(input)
         })
+        this.invalidate()
         return this
     }
 
     removeInput(idx: number) {
         this.#inputs[idx].removeSubscriber(this.#hook)
         this.#inputs.splice(idx, 1)
+        this.invalidate()
+        return this
+    }
+
+    clearInputs() {
+        for (let idx in this.#inputs) {
+            this.removeInput(0)
+        }
         return this
     }
 
@@ -133,7 +120,6 @@ export class State<T>{
     }
 
     set(newValue: T) {
-        this.invalidatePre()
         this.#cache = newValue
         this.invalidate()
         return this
@@ -170,14 +156,14 @@ export class State<T>{
                 } catch (error) {
                     reject(error)
                 }
-            }else{
+            } else {
                 resolve(this.#cache)
             }
         })
     }
 
-    #computeAsyncDefault = () => new Promise<T>((resolve:(value: any) => void) => resolve((...args: any) => this.#incoming ? this.#incoming.get() : this.#cache))
-    #computeAsync: (...args: any) => Promise<T> = () => new Promise<T>((resolve:(value: any) => void) => resolve((...args: any) => this.#incoming ? this.#incoming.get() : this.#cache))
+    #computeAsyncDefault = () => new Promise<T>((resolve: (value: any) => void) => resolve((...args: any) => this.#incoming ? this.#incoming.get() : this.#cache))
+    #computeAsync: (...args: any) => Promise<T> = () => new Promise<T>((resolve: (value: any) => void) => resolve((...args: any) => this.#incoming ? this.#incoming.get() : this.#cache))
     setComputeAsyncFn(computeAsyncFn?: (...args: any) => Promise<T>) {
         this.#computeAsync = computeAsyncFn ? computeAsyncFn : this.#computeAsyncDefault
         this.invalidate()

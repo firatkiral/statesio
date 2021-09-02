@@ -22,8 +22,7 @@ var _State_name, _State_inputs, _State_incoming, _State_hook, _State_cache, _Sta
 export class State {
     constructor(cache) {
         this.valid = true;
-        this.postSubscribers = [];
-        this.preSubscribers = [];
+        this.subscribers = [];
         _State_name.set(this, '');
         _State_inputs.set(this, []);
         _State_incoming.set(this, void 0);
@@ -42,35 +41,22 @@ export class State {
     getName() {
         return __classPrivateFieldGet(this, _State_name, "f");
     }
-    addSubscriber(listener, preChange = false) {
-        preChange ? this._subscribePre(listener) : this._subscribePost(listener);
-        return this;
-    }
-    _subscribePre(listener) {
-        if (this.preSubscribers.indexOf(listener) === -1) {
-            this.preSubscribers.push(listener);
-        }
-    }
-    _subscribePost(listener) {
-        if (this.postSubscribers.indexOf(listener) === -1) {
-            this.postSubscribers.push(listener);
+    addSubscriber(listener) {
+        if (this.subscribers.indexOf(listener) === -1) {
+            this.subscribers.push(listener);
             listener(this.get());
         }
     }
     removeSubscriber(listener) {
-        let index = this.postSubscribers.indexOf(listener);
+        let index = this.subscribers.indexOf(listener);
         if (index !== -1) {
-            this.postSubscribers.splice(index, 1);
-        }
-        index = this.preSubscribers.indexOf(listener);
-        if (index !== -1) {
-            this.preSubscribers.splice(index, 1);
+            this.subscribers.splice(index, 1);
         }
         return this;
     }
     clearSubscribers() {
-        for (let idx in this.postSubscribers) {
-            this.removeSubscriber(this.postSubscribers[0]);
+        for (let idx in this.subscribers) {
+            this.removeSubscriber(this.subscribers[0]);
         }
         return this;
     }
@@ -80,16 +66,11 @@ export class State {
             this.onValidate();
         }
     }
-    invalidatePre() {
-        for (let listener of this.preSubscribers) {
-            listener(this.get());
-        }
-    }
     invalidate() {
         if (this.valid) {
             this.valid = false;
             this.onInvalidate();
-            for (let listener of this.postSubscribers) {
+            for (let listener of this.subscribers) {
                 listener(this.get());
             }
         }
@@ -101,11 +82,19 @@ export class State {
             input.addSubscriber(__classPrivateFieldGet(this, _State_hook, "f"));
             __classPrivateFieldGet(this, _State_inputs, "f").push(input);
         });
+        this.invalidate();
         return this;
     }
     removeInput(idx) {
         __classPrivateFieldGet(this, _State_inputs, "f")[idx].removeSubscriber(__classPrivateFieldGet(this, _State_hook, "f"));
         __classPrivateFieldGet(this, _State_inputs, "f").splice(idx, 1);
+        this.invalidate();
+        return this;
+    }
+    clearInputs() {
+        for (let idx in __classPrivateFieldGet(this, _State_inputs, "f")) {
+            this.removeInput(0);
+        }
         return this;
     }
     getInputs() {
@@ -133,7 +122,6 @@ export class State {
         return __classPrivateFieldGet(this, _State_incoming, "f");
     }
     set(newValue) {
-        this.invalidatePre();
         __classPrivateFieldSet(this, _State_cache, newValue, "f");
         this.invalidate();
         return this;
