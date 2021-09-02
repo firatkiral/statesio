@@ -42,8 +42,8 @@ var userState = new State({
 });
 
 // Subscribe to changes on userState, this way we'll be notified any time nameState is changed.
-userState.subscribe((state) => {
-    console.log(`User has been updated:\n`, state.get());
+userState.subscribe(user => {
+    console.log(`User has been updated:\n`, user);
 });
 
 // Change membership
@@ -118,35 +118,6 @@ console.log(userState.get());
 //     username: 'johndoe',
 //     email: 'johndoe@example.com',
 //     membership: 'platinium'
-// }
-```
-### Undo/Redo history:
-StateConnect has built-in undo manager and disabled by default. It can be set by changing static `withUndo` variable. Also history limit can be changed from static undokit object stored in the State. Please check [UndoKit](https://github.com/firatkiral/UndoKit) library for more info about undo management.
-```javascript
-State.withUndo = true
-State.undoKit.setLimit(150)
-```
-
-All actions can be undone and redone simply by calling static undo and redo functions as shown below.
-```javascript
-State.undo();
-console.log("Action undone: \n",userState.get());
-// Output: Computed.
-// Action undone:
-//  {
-//   username: 'johndoe',
-//   email: 'johndoe@example.com',
-//   membership: 'basic'
-// }
-
-State.redo();
-console.log("Action redone: \n",userState.get());
-// Output: Computed.
-// Action redone:
-//  {
-//   username: 'johndoe',
-//   email: 'johndoe@example.com',
-//   membership: 'platinium'
 // }
 ```
 

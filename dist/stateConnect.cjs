@@ -19,67 +19,94 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _State_inputs, _State_hook, _State_cache, _State_compute, _State_computeAsync;
+var _State_name, _State_hooks, _State_incoming, _State_hook, _State_cache, _State_computeDefault, _State_compute, _State_computeAsyncDefault, _State_computeAsync;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.State = void 0;
-const undokit_1 = require("undokit");
 class State {
     constructor(cache) {
         this.valid = true;
-        this.subscribers = [];
-        _State_inputs.set(this, []);
+        this.postSubscribers = [];
+        this.preSubscribers = [];
+        _State_name.set(this, '');
+        _State_hooks.set(this, []);
+        _State_incoming.set(this, void 0);
         _State_hook.set(this, () => this.invalidate());
         _State_cache.set(this, void 0);
-        _State_compute.set(this, () => __classPrivateFieldGet(this, _State_inputs, "f").length > 0 ? __classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get()) : __classPrivateFieldGet(this, _State_cache, "f"));
-        _State_computeAsync.set(this, () => new Promise((resolve) => resolve(__classPrivateFieldGet(this, _State_inputs, "f").length > 0 ? __classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get()) : __classPrivateFieldGet(this, _State_cache, "f"))));
+        _State_computeDefault.set(this, (...args) => __classPrivateFieldGet(this, _State_incoming, "f") ? __classPrivateFieldGet(this, _State_incoming, "f").get() : __classPrivateFieldGet(this, _State_cache, "f"));
+        _State_compute.set(this, __classPrivateFieldGet(this, _State_computeDefault, "f"));
+        _State_computeAsyncDefault.set(this, () => new Promise((resolve) => resolve((...args) => __classPrivateFieldGet(this, _State_incoming, "f") ? __classPrivateFieldGet(this, _State_incoming, "f").get() : __classPrivateFieldGet(this, _State_cache, "f"))));
+        _State_computeAsync.set(this, () => new Promise((resolve) => resolve((...args) => __classPrivateFieldGet(this, _State_incoming, "f") ? __classPrivateFieldGet(this, _State_incoming, "f").get() : __classPrivateFieldGet(this, _State_cache, "f"))));
         __classPrivateFieldSet(this, _State_cache, cache, "f");
     }
-    subscribe(listener) {
-        if (this.subscribers.indexOf(listener) === -1) {
-            this.subscribers.push(listener);
-            if (!this.valid) {
-                listener(this);
-            }
-        }
-        else {
-        }
+    setName(name) {
+        __classPrivateFieldSet(this, _State_name, name, "f");
         return this;
     }
+    getName() {
+        return __classPrivateFieldGet(this, _State_name, "f");
+    }
+    subscribe(listener, preChange = false) {
+        preChange ? this._subscribePre(listener) : this._subscribePost(listener);
+        return this;
+    }
+    _subscribePre(listener) {
+        if (this.preSubscribers.indexOf(listener) === -1) {
+            this.preSubscribers.push(listener);
+        }
+    }
+    _subscribePost(listener) {
+        if (this.postSubscribers.indexOf(listener) === -1) {
+            this.postSubscribers.push(listener);
+            if (!this.valid) {
+                listener(this.get());
+            }
+        }
+    }
     unsubscribe(listener) {
-        let index = this.subscribers.indexOf(listener);
+        let index = this.postSubscribers.indexOf(listener);
         if (index !== -1) {
-            this.subscribers.splice(index, 1);
+            this.postSubscribers.splice(index, 1);
+        }
+        index = this.preSubscribers.indexOf(listener);
+        if (index !== -1) {
+            this.preSubscribers.splice(index, 1);
         }
         return this;
     }
     clearSubscribers() {
-        for (let idx in this.subscribers) {
-            this.unsubscribe(this.subscribers[0]);
+        for (let idx in this.postSubscribers) {
+            this.unsubscribe(this.postSubscribers[0]);
         }
         return this;
     }
     validate() {
         if (!this.valid) {
             this.valid = true;
+            this.onValidate();
+        }
+    }
+    invalidatePre() {
+        for (let listener of this.preSubscribers) {
+            listener(this.get());
         }
     }
     invalidate() {
         if (this.valid) {
             this.valid = false;
             this.onInvalidate();
-            for (let listener of this.subscribers) {
-                listener(this);
+            for (let listener of this.postSubscribers) {
+                listener(this.get());
             }
         }
     }
     onInvalidate() { }
     onValidate() { }
-    isHooked() {
-        return __classPrivateFieldGet(this, _State_inputs, "f").length > 0;
+    isNode() {
+        return __classPrivateFieldGet(this, _State_hooks, "f").length > 0;
     }
     hook(input) {
         this.subscribe(__classPrivateFieldGet(input, _State_hook, "f"));
-        __classPrivateFieldGet(input, _State_inputs, "f").push(this);
+        __classPrivateFieldGet(input, _State_hooks, "f").push(this);
         input.invalidate();
         return this;
     }
@@ -90,42 +117,51 @@ class State {
         return this;
     }
     removeHook(idx) {
-        __classPrivateFieldGet(this, _State_inputs, "f")[idx].unsubscribe(__classPrivateFieldGet(this, _State_hook, "f"));
-        __classPrivateFieldGet(this, _State_inputs, "f").splice(idx, 1);
+        __classPrivateFieldGet(this, _State_hooks, "f")[idx].unsubscribe(__classPrivateFieldGet(this, _State_hook, "f"));
+        __classPrivateFieldGet(this, _State_hooks, "f").splice(idx, 1);
         this.invalidate();
         return this;
     }
+    getHooks() {
+        return __classPrivateFieldGet(this, _State_hooks, "f");
+    }
+    plug(incoming) {
+        incoming.setPlug(this);
+        this.invalidate();
+        return this;
+    }
+    setPlug(incoming) {
+        var _a;
+        (_a = __classPrivateFieldGet(this, _State_incoming, "f")) === null || _a === void 0 ? void 0 : _a.unsubscribe(__classPrivateFieldGet(this, _State_hook, "f"));
+        __classPrivateFieldSet(this, _State_incoming, undefined, "f");
+        if (incoming) {
+            __classPrivateFieldSet(this, _State_incoming, incoming, "f");
+            incoming.subscribe(__classPrivateFieldGet(this, _State_hook, "f"));
+        }
+        this.invalidate();
+        return this;
+    }
+    isPlugged() {
+        return !!__classPrivateFieldGet(this, _State_incoming, "f");
+    }
+    getPlug() {
+        return __classPrivateFieldGet(this, _State_incoming, "f");
+    }
     set(newValue) {
-        if (State.withUndo) {
-            let oldValue = __classPrivateFieldGet(this, _State_cache, "f");
-            let setCmd = {
-                redo: () => {
-                    __classPrivateFieldSet(this, _State_cache, newValue, "f");
-                    this.invalidate();
-                },
-                undo: () => {
-                    __classPrivateFieldSet(this, _State_cache, oldValue, "f");
-                    this.invalidate();
-                }
-            };
-            State.undoKit.push(setCmd);
-        }
-        else {
-            __classPrivateFieldSet(this, _State_cache, newValue, "f");
-            this.invalidate();
-        }
+        this.invalidatePre();
+        __classPrivateFieldSet(this, _State_cache, newValue, "f");
+        this.invalidate();
         return this;
     }
     get() {
         if (!this.valid) {
-            __classPrivateFieldSet(this, _State_cache, __classPrivateFieldGet(this, _State_compute, "f").call(this, ...__classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get())), "f");
+            __classPrivateFieldSet(this, _State_cache, __classPrivateFieldGet(this, _State_compute, "f").call(this, ...__classPrivateFieldGet(this, _State_hooks, "f").map(input => input.get())), "f");
             this.validate();
-            this.onValidate();
         }
         return __classPrivateFieldGet(this, _State_cache, "f");
     }
     setComputeFn(computeFn) {
-        __classPrivateFieldSet(this, _State_compute, computeFn ? computeFn : () => __classPrivateFieldGet(this, _State_inputs, "f").length > 0 ? __classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get()) : __classPrivateFieldGet(this, _State_cache, "f"), "f");
+        __classPrivateFieldSet(this, _State_compute, computeFn ? computeFn : __classPrivateFieldGet(this, _State_computeDefault, "f"), "f");
         this.invalidate();
         return this;
     }
@@ -134,7 +170,7 @@ class State {
             return new Promise((resolve, reject) => {
                 if (!this.valid) {
                     try {
-                        __classPrivateFieldGet(this, _State_computeAsync, "f").call(this, ...__classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get())).then((res) => {
+                        __classPrivateFieldGet(this, _State_computeAsync, "f").call(this, ...__classPrivateFieldGet(this, _State_hooks, "f").map(input => input.get())).then((res) => {
                             __classPrivateFieldSet(this, _State_cache, res, "f");
                             this.validate();
                             this.onValidate();
@@ -145,18 +181,17 @@ class State {
                         reject(error);
                     }
                 }
+                else {
+                    resolve(__classPrivateFieldGet(this, _State_cache, "f"));
+                }
             });
         });
     }
     setComputeAsyncFn(computeAsyncFn) {
-        __classPrivateFieldSet(this, _State_computeAsync, computeAsyncFn ? computeAsyncFn : () => new Promise((resolve) => resolve(__classPrivateFieldGet(this, _State_inputs, "f").length > 0 ? __classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get()) : __classPrivateFieldGet(this, _State_cache, "f"))), "f");
+        __classPrivateFieldSet(this, _State_computeAsync, computeAsyncFn ? computeAsyncFn : __classPrivateFieldGet(this, _State_computeAsyncDefault, "f"), "f");
         this.invalidate();
         return this;
     }
 }
 exports.State = State;
-_State_inputs = new WeakMap(), _State_hook = new WeakMap(), _State_cache = new WeakMap(), _State_compute = new WeakMap(), _State_computeAsync = new WeakMap();
-State.undoKit = new undokit_1.UndoKit();
-State.withUndo = false;
-State.undo = () => State.undoKit.undo();
-State.redo = () => State.undoKit.redo();
+_State_name = new WeakMap(), _State_hooks = new WeakMap(), _State_incoming = new WeakMap(), _State_hook = new WeakMap(), _State_cache = new WeakMap(), _State_computeDefault = new WeakMap(), _State_compute = new WeakMap(), _State_computeAsyncDefault = new WeakMap(), _State_computeAsync = new WeakMap();

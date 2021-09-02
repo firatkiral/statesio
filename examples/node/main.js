@@ -8,8 +8,8 @@ var userState = new State({
 });
 
 // Subscribe to changes on userState, this way we'll be notified any time userState is changed.
-userState.subscribe((state) => {
-    console.log(`User has been updated:\n`, state.get());
+userState.subscribe(user => {
+    console.log(`User has been updated:\n`, user);
 });
 
 // Change membership
@@ -69,30 +69,6 @@ console.log(userState.get());
 //     username: 'johndoe',
 //     email: 'johndoe@example.com',
 //     membership: 'platinium'
-// }
-
-//** ### Undo/Redo history */
-State.withUndo = true
-State.undoKit.setLimit(150)
-
-State.undo();
-console.log("Action undone: \n",userState.get());
-// Output: Computed.
-// Action undone:
-//  {
-//   username: 'johndoe',
-//   email: 'johndoe@example.com',
-//   membership: 'basic'
-// }
-
-State.redo();
-console.log("Action redone: \n",userState.get());
-// Output: Computed.
-// Action redone:
-//  {
-//   username: 'johndoe',
-//   email: 'johndoe@example.com',
-//   membership: 'platinium'
 // }
 
 //** ### Async computation */
@@ -156,8 +132,8 @@ multiplyState.subscribe((state) => {
     console.log("first subscriber: state changed");
 });
 
-multiplyState.subscribe((state) => {
-    console.log("first subscriber: " + state.get());
+multiplyState.subscribe(val => {
+    console.log("first subscriber: " + val);
 });
 
 weight.set(6);

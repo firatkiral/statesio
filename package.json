@@ -1,16 +1,22 @@
 {
     "name": "stateconnect",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "State manager.",
     "author": "Firat Kiral",
     "license": "MIT",
     "keywords": [
         "state",
         "connect",
-        "evaluation"
+        "evaluation",
+        "property",
+        "observable",
+        "listener",
+        "signal",
+        "callback"
     ],
     "main": "dist/stateConnect.cjs",
     "types": "dist/stateConnect.d.ts",
+    "module": "dist/stateConnect.mjs",
     "files": [
         "dist/stateConnect.cjs",
         "dist/stateConnect.d.ts",
