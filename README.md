@@ -42,7 +42,7 @@ var userState = new State({
 });
 
 // Subscribe to changes on userState, this way we'll be notified any time nameState is changed.
-userState.subscribe(user => {
+userState.addSubscriber(user => {
     console.log(`User has been updated:\n`, user);
 });
 
@@ -59,7 +59,7 @@ userState.set({
 // }
 ```
 
-We create state by just giving an initial value. In this case we have user object which holds our user properties. When we set new value to userState, subscriber is notified and prints new user object. It passes state itself as a parameter to subscribe function. This way we can get state value inside the function scope.
+We create state by just giving an initial value. In this case we have user object which holds our user properties. When we set new value to userState, subscriber is notified and prints new user object. It passes state itself as a parameter to addSubscriber function. This way we can get state value inside the function scope.
 
 ### Connecting states and setting custom computation:
 We are not limited to one state object that holds all states. We can create micro states for each property and connect them to one final state. This way whenever micro state is changed, final state will update itself automatically and return array that holds all connected values by connection order. This will allow us freedom to update micro states individually without touching other states and prevent accidental value updates for other states.
@@ -70,7 +70,7 @@ var emailState = new State("johndoe@example.com");
 var membershipState = new State("basic");
 
 var userState = new State();
-userState.addHook(usernameState, emailState, membershipState);
+userState.addInput(usernameState, emailState, membershipState);
 
 console.log(userState.get());
 // [ 'johndoe', 'johndoe@example.com', 'basic' ]

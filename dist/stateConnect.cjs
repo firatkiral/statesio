@@ -19,7 +19,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _State_name, _State_hooks, _State_incoming, _State_hook, _State_cache, _State_computeDefault, _State_compute, _State_computeAsyncDefault, _State_computeAsync;
+var _State_name, _State_inputs, _State_incoming, _State_hook, _State_cache, _State_computeDefault, _State_compute, _State_computeAsyncDefault, _State_computeAsync;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.State = void 0;
 class State {
@@ -28,7 +28,7 @@ class State {
         this.postSubscribers = [];
         this.preSubscribers = [];
         _State_name.set(this, '');
-        _State_hooks.set(this, []);
+        _State_inputs.set(this, []);
         _State_incoming.set(this, void 0);
         _State_hook.set(this, () => this.invalidate());
         _State_cache.set(this, void 0);
@@ -45,7 +45,7 @@ class State {
     getName() {
         return __classPrivateFieldGet(this, _State_name, "f");
     }
-    subscribe(listener, preChange = false) {
+    addSubscriber(listener, preChange = false) {
         preChange ? this._subscribePre(listener) : this._subscribePost(listener);
         return this;
     }
@@ -57,12 +57,10 @@ class State {
     _subscribePost(listener) {
         if (this.postSubscribers.indexOf(listener) === -1) {
             this.postSubscribers.push(listener);
-            if (!this.valid) {
-                listener(this.get());
-            }
+            listener(this.get());
         }
     }
-    unsubscribe(listener) {
+    removeSubscriber(listener) {
         let index = this.postSubscribers.indexOf(listener);
         if (index !== -1) {
             this.postSubscribers.splice(index, 1);
@@ -75,7 +73,7 @@ class State {
     }
     clearSubscribers() {
         for (let idx in this.postSubscribers) {
-            this.unsubscribe(this.postSubscribers[0]);
+            this.removeSubscriber(this.postSubscribers[0]);
         }
         return this;
     }
@@ -101,50 +99,40 @@ class State {
     }
     onInvalidate() { }
     onValidate() { }
-    isNode() {
-        return __classPrivateFieldGet(this, _State_hooks, "f").length > 0;
-    }
-    hook(input) {
-        this.subscribe(__classPrivateFieldGet(input, _State_hook, "f"));
-        __classPrivateFieldGet(input, _State_hooks, "f").push(this);
-        input.invalidate();
-        return this;
-    }
-    addHook(...args) {
-        args.forEach(input => {
-            input.hook(this);
+    addInput(...inputs) {
+        inputs.forEach(input => {
+            input.addSubscriber(__classPrivateFieldGet(this, _State_hook, "f"));
+            __classPrivateFieldGet(this, _State_inputs, "f").push(input);
         });
         return this;
     }
-    removeHook(idx) {
-        __classPrivateFieldGet(this, _State_hooks, "f")[idx].unsubscribe(__classPrivateFieldGet(this, _State_hook, "f"));
-        __classPrivateFieldGet(this, _State_hooks, "f").splice(idx, 1);
-        this.invalidate();
+    removeInput(idx) {
+        __classPrivateFieldGet(this, _State_inputs, "f")[idx].removeSubscriber(__classPrivateFieldGet(this, _State_hook, "f"));
+        __classPrivateFieldGet(this, _State_inputs, "f").splice(idx, 1);
         return this;
     }
-    getHooks() {
-        return __classPrivateFieldGet(this, _State_hooks, "f");
+    getInputs() {
+        return __classPrivateFieldGet(this, _State_inputs, "f");
     }
-    plug(incoming) {
-        incoming.setPlug(this);
-        this.invalidate();
+    connect(other) {
+        other.setConnection(this);
         return this;
     }
-    setPlug(incoming) {
+    setConnection(incoming) {
         var _a;
-        (_a = __classPrivateFieldGet(this, _State_incoming, "f")) === null || _a === void 0 ? void 0 : _a.unsubscribe(__classPrivateFieldGet(this, _State_hook, "f"));
+        (_a = __classPrivateFieldGet(this, _State_incoming, "f")) === null || _a === void 0 ? void 0 : _a.removeSubscriber(__classPrivateFieldGet(this, _State_hook, "f"));
         __classPrivateFieldSet(this, _State_incoming, undefined, "f");
         if (incoming) {
             __classPrivateFieldSet(this, _State_incoming, incoming, "f");
-            incoming.subscribe(__classPrivateFieldGet(this, _State_hook, "f"));
+            incoming.addSubscriber(__classPrivateFieldGet(this, _State_hook, "f"));
         }
         this.invalidate();
         return this;
     }
-    isPlugged() {
+    isConnected() {
         return !!__classPrivateFieldGet(this, _State_incoming, "f");
     }
-    getPlug() {
+    getIncoming() {
         return __classPrivateFieldGet(this, _State_incoming, "f");
     }
     set(newValue) {
@@ -155,7 +143,7 @@ class State {
     }
     get() {
         if (!this.valid) {
-            __classPrivateFieldSet(this, _State_cache, __classPrivateFieldGet(this, _State_compute, "f").call(this, ...__classPrivateFieldGet(this, _State_hooks, "f").map(input => input.get())), "f");
+            __classPrivateFieldSet(this, _State_cache, __classPrivateFieldGet(this, _State_compute, "f").call(this, ...__classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get())), "f");
             this.validate();
         }
         return __classPrivateFieldGet(this, _State_cache, "f");
@@ -170,7 +158,7 @@ class State {
             return new Promise((resolve, reject) => {
                 if (!this.valid) {
                     try {
-                        __classPrivateFieldGet(this, _State_computeAsync, "f").call(this, ...__classPrivateFieldGet(this, _State_hooks, "f").map(input => input.get())).then((res) => {
+                        __classPrivateFieldGet(this, _State_computeAsync, "f").call(this, ...__classPrivateFieldGet(this, _State_inputs, "f").map(input => input.get())).then((res) => {
                             __classPrivateFieldSet(this, _State_cache, res, "f");
                             this.validate();
                             this.onValidate();
@@ -194,4 +182,4 @@ class State {
     }
 }
 exports.State = State;
-_State_name = new WeakMap(), _State_hooks = new WeakMap(), _State_incoming = new WeakMap(), _State_hook = new WeakMap(), _State_cache = new WeakMap(), _State_computeDefault = new WeakMap(), _State_compute = new WeakMap(), _State_computeAsyncDefault = new WeakMap(), _State_computeAsync = new WeakMap();
+_State_name = new WeakMap(), _State_inputs = new WeakMap(), _State_incoming = new WeakMap(), _State_hook = new WeakMap(), _State_cache = new WeakMap(), _State_computeDefault = new WeakMap(), _State_compute = new WeakMap(), _State_computeAsyncDefault = new WeakMap(), _State_computeAsync = new WeakMap();

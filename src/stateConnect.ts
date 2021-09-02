@@ -5,7 +5,7 @@ export class State<T>{
 
     #name = ''
 
-    #hooks: State<any>[] = []
+    #inputs: State<any>[] = []
     #incoming?: State<T>
     #hook: (property: T | undefined) => void = () => this.invalidate()
     #cache?: T
@@ -23,8 +23,7 @@ export class State<T>{
         return this.#name
     }
 
-
-    subscribe(listener: (property: T | undefined) => void, preChange = false) {
+    addSubscriber(listener: (property: T | undefined) => void, preChange = false) {
         preChange ? this._subscribePre(listener) : this._subscribePost(listener)
         return this
     }
@@ -38,13 +37,11 @@ export class State<T>{
     private _subscribePost(listener: (property: T | undefined) => void) {
         if (this.postSubscribers.indexOf(listener) === -1) {
             this.postSubscribers.push(listener)
-            if (!this.valid) {
-                listener(this.get())
-            }
+            listener(this.get())
         }
     }
 
-    unsubscribe(listener: (property: T | undefined) => void) {
+    removeSubscriber(listener: (property: T | undefined) => void) {
         let index = this.postSubscribers.indexOf(listener)
         if (index !== -1) {
             this.postSubscribers.splice(index, 1)
@@ -59,7 +56,7 @@ export class State<T>{
 
     clearSubscribers() {
         for (let idx in this.postSubscribers) {
-            this.unsubscribe(this.postSubscribers[0])
+            this.removeSubscriber(this.postSubscribers[0])
         }
         return this
     }
@@ -91,59 +88,47 @@ export class State<T>{
 
     onValidate() { }
 
-    isNode(): boolean {
-        return this.#hooks.length > 0
-    }
-
-    hook(input: State<any>) {
-        this.subscribe(input.#hook)
-        input.#hooks.push(this)
-        input.invalidate()
-        return this
-    }
-
-    addHook(...args: State<any>[]) {
-        args.forEach(input => {
-            input.hook(this)
+    addInput(...inputs: State<any>[]) {
+        inputs.forEach(input => {
+            input.addSubscriber(this.#hook)
+            this.#inputs.push(input)
         })
         return this
     }
 
-    removeHook(idx: number) {
-        this.#hooks[idx].unsubscribe(this.#hook)
-        this.#hooks.splice(idx, 1)
-        this.invalidate()
+    removeInput(idx: number) {
+        this.#inputs[idx].removeSubscriber(this.#hook)
+        this.#inputs.splice(idx, 1)
         return this
     }
 
-    getHooks() {
-        return this.#hooks
+    getInputs() {
+        return this.#inputs
     }
 
-    plug(incoming: State<T>) {
-        incoming.setPlug(this)
-        this.invalidate()
+    connect(other: State<T>) {
+        other.setConnection(this)
         return this
     }
 
-    setPlug(incoming?: State<T>) {
-        this.#incoming?.unsubscribe(this.#hook)
+    setConnection(incoming?: State<T>) {
+        this.#incoming?.removeSubscriber(this.#hook)
         this.#incoming = undefined
 
         if (incoming) {
             this.#incoming = incoming
-            incoming.subscribe(this.#hook)
+            incoming.addSubscriber(this.#hook)
         }
 
         this.invalidate()
         return this
     }
 
-    isPlugged() {
+    isConnected() {
         return !!this.#incoming
     }
 
-    getPlug() {
+    getIncoming() {
         return this.#incoming
     }
 
@@ -156,7 +141,7 @@ export class State<T>{
 
     get() {
         if (!this.valid) {
-            this.#cache = this.#compute(...this.#hooks.map(input => input.get()))
+            this.#cache = this.#compute(...this.#inputs.map(input => input.get()))
             this.validate()
         }
         return this.#cache
@@ -175,7 +160,7 @@ export class State<T>{
         return new Promise<T>((resolve: (value: any) => void, reject: (reason?: any) => void) => {
             if (!this.valid) {
                 try {
-                    this.#computeAsync(...this.#hooks.map(input => input.get())).then((res) => {
+                    this.#computeAsync(...this.#inputs.map(input => input.get())).then((res) => {
                         this.#cache = res
                         this.validate()
                         this.onValidate()

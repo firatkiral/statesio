@@ -8,7 +8,7 @@ var userState = new State({
 });
 
 // Subscribe to changes on userState, this way we'll be notified any time userState is changed.
-userState.subscribe(user => {
+userState.addSubscriber(user => {
     console.log(`User has been updated:\n`, user);
 });
 
@@ -31,7 +31,7 @@ var emailState = new State("johndoe@example.com");
 var membershipState = new State("basic");
 
 var userState = new State();
-userState.addHook(usernameState, emailState, membershipState);
+userState.addInput(usernameState, emailState, membershipState);
 
 console.log(userState.get());
 // [ 'johndoe', 'johndoe@example.com', 'basic' ]
@@ -74,7 +74,7 @@ console.log(userState.get());
 //** ### Async computation */
 var userIdState = new State("usr324563");
 var userObjAsyncState = new State();
-userIdState.hook(userObjAsyncState);
+userObjAsyncState.addInput(userIdState)
 
 userObjAsyncState.setComputeAsyncFn((userId) => {
     return new Promise((resolve, reject) => {
@@ -113,7 +113,7 @@ var vec2 = new State(new Vector3(2, 2, 2));
 var weight = new State(2);
 
 var multiplyState = new State();
-multiplyState.addHook(vec1, vec2, weight);
+multiplyState.addInput(vec1, vec2, weight);
 
 multiplyState.setComputeFn((v1, v2, w) => {
     var out = new Vector3(v1.x * v2.x * w, v1.y * v2.y * w, v1.z * v2.z * w);
@@ -128,18 +128,18 @@ weight.set(5);
 console.log(multiplyState.get());
 console.log(multiplyState.get());
 
-multiplyState.subscribe((state) => {
+multiplyState.addSubscriber((state) => {
     console.log("first subscriber: state changed");
 });
 
-multiplyState.subscribe(val => {
+multiplyState.addSubscriber(val => {
     console.log("first subscriber: " + val);
 });
 
 weight.set(6);
 
 multiplyState = new State();
-multiplyState.addHook(vec1, vec2, weight);
+multiplyState.addInput(vec1, vec2, weight);
 
 multiplyState.setComputeAsyncFn((v1, v2, w) => {
     return new Promise((resolve, reject) => {
