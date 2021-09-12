@@ -12,19 +12,19 @@ $ npm install stateconnect
 
 Then it can be imported with require:
 ```javascript
-const {State} = require("stateconnect")
+const { Binding, State } = require("stateconnect")
 ```
 
 Or it can be directly imported from the path:
 ```javascript
-const {State} = require("./path-to-module/stateconnect.cjs")
+const { Binding, State } = require("./path-to-module/stateconnect.cjs")
 ```
 
 
 For web, it can also be imported from path. StateConnect relies on ES modules, any script that references it must use type="module" as shown below:
 ```javascript
 <script type="module">
-    import { State } from "./path-to-module/stateconnect.mjs"
+    import { Binding, State } from "./path-to-module/stateconnect.mjs"
 </script>
 ```
 
@@ -33,7 +33,7 @@ For web, it can also be imported from path. StateConnect relies on ES modules, a
 ### Creating simple state:
 
 ```javascript
-const { State } = require("stateconnect")
+const { Binding, State } = require("stateconnect")
 
 var userState = new State({
     username: 'johndoe',
@@ -69,7 +69,7 @@ var usernameState = new State("johndoe");
 var emailState = new State("johndoe@example.com");
 var membershipState = new State("basic");
 
-var userState = new State();
+var userState = new Binding();
 userState.addInput(usernameState, emailState, membershipState);
 
 console.log(userState.get());
@@ -122,14 +122,14 @@ console.log(userState.get());
 ```
 
  ### Async computation:
-StateConnect supports async computations where application needs to do some server side calls etc. that requires async operation. We achieve this by using `setComputeAsyncFn` and `getAsync` functions as shown below.
+StateConnect supports async computations where application needs to do some server side calls etc. that requires async operation.
 
 ```javascript
 var userIdState = new State("usr324563");
-var userObjAsyncState = new State();
+var userObjAsyncState = new Binding();
 userIdState.connect(userObjAsyncState)
 
-userObjAsyncState.setComputeAsyncFn((userId) => {
+userObjAsyncState.setComputeFn((userId) => {
     return new Promise((resolve, reject) => {
         // Assume we made server call and received new user object
         setTimeout(() => {
@@ -142,7 +142,7 @@ userObjAsyncState.setComputeAsyncFn((userId) => {
     });
 });
 
-userObjAsyncState.getAsync().then((res) => {
+userObjAsyncState.get().then((res) => {
     console.log("resultAsync: ", res);
 });
 // Output: resultAsync:  { uId: 'usr324563', firstname: 'John', lastname: 'Doe' }
