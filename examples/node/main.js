@@ -1,4 +1,4 @@
-const { State } = require("../../dist/stateConnect.cjs");
+const { Binding, State } = require("../../dist/state.js");
 
 //** ### Creating simple state */
 var userState = new State({
@@ -30,7 +30,7 @@ var usernameState = new State("johndoe");
 var emailState = new State("johndoe@example.com");
 var membershipState = new State("basic");
 
-var userState = new State();
+var userState = new Binding();
 userState.addInput(usernameState, emailState, membershipState);
 
 console.log(userState.get());
@@ -73,10 +73,10 @@ console.log(userState.get());
 
 //** ### Async computation */
 var userIdState = new State("usr324563");
-var userObjAsyncState = new State();
+var userObjAsyncState = new Binding();
 userObjAsyncState.addInput(userIdState)
 
-userObjAsyncState.setComputeAsyncFn((userId) => {
+userObjAsyncState.setComputeFn((userId) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve({
@@ -88,7 +88,7 @@ userObjAsyncState.setComputeAsyncFn((userId) => {
     });
 });
 
-userObjAsyncState.getAsync().then((res) => {
+userObjAsyncState.get().then((res) => {
     console.log("resultAsync: ", res);
 });
 // Output: resultAsync:  { uId: 'usr324563', firstname: 'John', lastname: 'Doe' }
@@ -112,7 +112,7 @@ var vec1 = new State(new Vector3(1, 1, 1));
 var vec2 = new State(new Vector3(2, 2, 2));
 var weight = new State(2);
 
-var multiplyState = new State();
+var multiplyState = new Binding();
 multiplyState.addInput(vec1, vec2, weight);
 
 multiplyState.setComputeFn((v1, v2, w) => {
@@ -138,10 +138,10 @@ multiplyState.addSubscriber(val => {
 
 weight.set(6);
 
-multiplyState = new State();
+multiplyState = new Binding();
 multiplyState.addInput(vec1, vec2, weight);
 
-multiplyState.setComputeAsyncFn((v1, v2, w) => {
+multiplyState.setComputeFn(async (v1, v2, w) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             let out = new Vector3(v1.x * v2.x * w, v1.y * v2.y * w, v1.z * v2.z * w);
@@ -150,7 +150,7 @@ multiplyState.setComputeAsyncFn((v1, v2, w) => {
     });
 });
 
-multiplyState.getAsync().then((res) => {
+multiplyState.get().then((res) => {
     console.log("resultAsync: ", res);
 });
 

@@ -1,6 +1,6 @@
 {
     "name": "stateconnect",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "description": "State manager.",
     "author": "Firat Kiral",
     "license": "MIT",
@@ -14,13 +14,13 @@
         "signal",
         "callback"
     ],
-    "main": "dist/stateConnect.cjs",
-    "types": "dist/stateConnect.d.ts",
-    "module": "dist/stateConnect.mjs",
+    "main": "dist/state.js",
+    "types": "dist/state.d.ts",
+    "module": "dist/state.module.js",
     "files": [
-        "dist/stateConnect.cjs",
-        "dist/stateConnect.d.ts",
-        "dist/stateConnect.mjs",
+        "dist/state.js",
+        "dist/state.d.ts",
+        "dist/state.module.js",
         "examples/**/*"
     ],
     "scripts": {
