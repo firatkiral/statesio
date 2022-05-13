@@ -7,24 +7,24 @@ Scalable state trees can be created by connecting them each other.
 ## Install 
 For nodejs application it can be installed from npm:
 ```shell
-$ npm install stateconnect
+$ npm install statemesh
 ```
 
 Then it can be imported with require:
 ```javascript
-const { Binding, State } = require("stateconnect")
+const { Binding, State } = require("statemesh")
 ```
 
 Or it can be directly imported from the path:
 ```javascript
-const { Binding, State } = require("./path-to-module/stateconnect.cjs")
+const { Binding, State } = require("./path-to-module/statemesh.cjs")
 ```
 
 
-For web, it can also be imported from path. StateConnect relies on ES modules, any script that references it must use type="module" as shown below:
+For web, it can also be imported from path. StateMesh relies on ES modules, any script that references it must use type="module" as shown below:
 ```javascript
 <script type="module">
-    import { Binding, State } from "./path-to-module/stateconnect.mjs"
+    import { Binding, State } from "./path-to-module/statemesh.mjs"
 </script>
 ```
 
@@ -33,7 +33,7 @@ For web, it can also be imported from path. StateConnect relies on ES modules, a
 ### Creating simple state:
 
 ```javascript
-const { Binding, State } = require("stateconnect")
+const { Binding, State } = require("statemesh")
 
 var userState = new State({
     username: 'johndoe',
@@ -108,7 +108,7 @@ console.log(userState.get());
 
 Compute function will receive all connected state values as parameter with the connection order. In this example `setComputeFn` passes usernameState, emailState and membershipState as parameter since these are the only connected states.
 
-Another thing is StateConnect uses lazy evaluation algorithm. It means value won't be computed until it is called. It will be computed only once at the first call. Any other consecutive calls will receive cached value. This saves lots of computation power and time if app has heavy calculations or has too many states. If we try to call userstate again you'll notice that it wont print 'Computed.' again since its calling it from cache.
+Another thing is StateMesh uses lazy evaluation algorithm. It means value won't be computed until it is called. It will be computed only once at the first call. Any other consecutive calls will receive cached value. This saves lots of computation power and time if app has heavy calculations or has too many states. If we try to call userstate again you'll notice that it wont print 'Computed.' again since its calling it from cache.
 
 ```javascript
 // It will return the cached value since nothing is changed and wont print 'Computed.'.
@@ -122,7 +122,7 @@ console.log(userState.get());
 ```
 
  ### Async computation:
-StateConnect supports async computations where application needs to do some server side calls etc. that requires async operation.
+StateMesh supports async computations where application needs to do some server side calls etc. that requires async operation.
 
 ```javascript
 var userIdState = new State("usr324563");

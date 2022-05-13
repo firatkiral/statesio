@@ -3,8 +3,8 @@ const fs = require("fs-extra");
 
 function process(ext = "js") {
     !fs.existsSync(`./dist`) && fs.mkdirSync(`./dist`);
-    fs.renameSync(`./build/state.js`, `./dist/state.${ext}`);
-    fs.renameSync(`./build/state.d.ts`, `./dist/state.d.ts`);
+    fs.renameSync(`./build/statemesh.js`, `./dist/statemesh.${ext}`);
+    fs.renameSync(`./build/statemesh.d.ts`, `./dist/statemesh.d.ts`);
 }
 
 // Node

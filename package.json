@@ -1,6 +1,6 @@
 {
-    "name": "stateconnect",
-    "version": "1.0.13",
+    "name": "statemesh",
+    "version": "1.0.2",
     "description": "State manager.",
     "author": "Firat Kiral",
     "license": "MIT",
@@ -14,13 +14,13 @@
         "signal",
         "callback"
     ],
-    "main": "dist/state.js",
-    "types": "dist/state.d.ts",
-    "module": "dist/state.module.js",
+    "main": "dist/statemesh.js",
+    "types": "dist/statemesh.d.ts",
+    "module": "dist/statemesh.module.js",
     "files": [
-        "dist/state.js",
-        "dist/state.d.ts",
-        "dist/state.module.js",
+        "dist/statemesh.js",
+        "dist/statemesh.d.ts",
+        "dist/statemesh.module.js",
         "examples/**/*"
     ],
     "scripts": {
@@ -36,10 +36,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/firatkiral/StateConnect.git"
+        "url": "git+https://github.com/firatkiral/statemesh.git"
     },
     "bugs": {
-        "url": "https://github.com/firatkiral/StateConnect/issues"
+        "url": "https://github.com/firatkiral/statemesh/issues"
     },
-    "homepage": "https://github.com/firatkiral/StateConnect#readme"
+    "homepage": "https://github.com/firatkiral/statemesh#readme"
 }
