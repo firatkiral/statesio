@@ -1,16 +1,16 @@
 # StateMesh - A State Manager for JavaScript
 
-This library allows following or subscribing state changes in application.
-Any change on the state will be notified to subscribers, so subscribers can update theirselves accordingly.
-Scalable state trees can be created by connecting them each other.
+This library provides powerful and lightweight state machine with support for lazy evaluation, immediate evaluation, nested states and value caching.
+Any change on the states propagates to the app so app can react to the change at time of the change or wait until the end of the app loop.
+Lazy evaluation and value caching give performance boost for apps with heavy computations.
+Nested state allows to define complex state trees with ease.
 
 ## Install 
-For nodejs application it can be installed from npm:
 ```shell
 $ npm install statemesh
 ```
 
-Nodejs:
+node:
 ```javascript
 const { Binding, State } = require("statemesh")
 ```

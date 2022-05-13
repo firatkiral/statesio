@@ -1,4 +1,4 @@
-const { Binding, State } = require("../../dist/statemesh.js");
+const { Binding, State, StateMesh } = require("../../dist/statemesh.js");
 
 //** ### Creating simple state */
 var userState = new State({
@@ -8,7 +8,7 @@ var userState = new State({
 });
 
 // Subscribe to changes on userState, this way we'll be notified any time userState is changed.
-userState.addSubscriber(user => {
+userState.addChangeListener(user => {
     console.log(`User has been updated:\n`, user);
 });
 
@@ -31,7 +31,7 @@ var emailState = new State("johndoe@example.com");
 var membershipState = new State("basic");
 
 var userState = new Binding();
-userState.addInput(usernameState, emailState, membershipState);
+userState.addState(usernameState, emailState, membershipState);
 
 console.log(userState.get());
 // [ 'johndoe', 'johndoe@example.com', 'basic' ]
@@ -74,7 +74,7 @@ console.log(userState.get());
 //** ### Async computation */
 var userIdState = new State("usr324563");
 var userObjAsyncState = new Binding();
-userObjAsyncState.addInput(userIdState)
+userObjAsyncState.addState(userIdState)
 
 userObjAsyncState.setComputeFn((userId) => {
     return new Promise((resolve, reject) => {
@@ -108,12 +108,17 @@ class Vector3 {
     }
 }
 
-var vec1 = new State(new Vector3(1, 1, 1));
-var vec2 = new State(new Vector3(2, 2, 2));
-var weight = new State(2);
+var vec1 = new State(new Vector3(1, 1, 1), "vec1");
+var vec2 = new State(new Vector3(2, 2, 2), "vec2");
+var weight = new State(2, "w");
 
 var multiplyState = new Binding();
-multiplyState.addInput(vec1, vec2, weight);
+multiplyState.addState(vec1, vec2, weight);
+
+// These inputs can be called by their name.
+console.log(multiplyState.vec1.get());
+console.log(multiplyState.vec2.get());
+console.log(multiplyState.w.get());
 
 multiplyState.setComputeFn((v1, v2, w) => {
     var out = new Vector3(v1.x * v2.x * w, v1.y * v2.y * w, v1.z * v2.z * w);
@@ -128,18 +133,18 @@ weight.set(5);
 console.log(multiplyState.get());
 console.log(multiplyState.get());
 
-multiplyState.addSubscriber((state) => {
+multiplyState.addChangeListener((state) => {
     console.log("first subscriber: state changed");
 });
 
-multiplyState.addSubscriber(val => {
+multiplyState.addChangeListener(val => {
     console.log("first subscriber: " + val);
 });
 
 weight.set(6);
 
 multiplyState = new Binding();
-multiplyState.addInput(vec1, vec2, weight);
+multiplyState.addState(vec1, vec2, weight);
 
 multiplyState.setComputeFn(async (v1, v2, w) => {
     return new Promise((resolve, reject) => {
@@ -155,3 +160,8 @@ multiplyState.get().then((res) => {
 });
 
 console.log("result: ", multiplyState.get());
+
+
+let statemesh = new StateMesh();
+statemesh.addState(vec1, vec2, weight);
+console.log("statemesh: ", statemesh.get());
