@@ -1,4 +1,4 @@
-# State Connection Graph
+# StateMesh - A State Manager for JavaScript
 
 This library allows following or subscribing state changes in application.
 Any change on the state will be notified to subscribers, so subscribers can update theirselves accordingly.
@@ -10,21 +10,26 @@ For nodejs application it can be installed from npm:
 $ npm install statemesh
 ```
 
-Then it can be imported with require:
+Nodejs:
 ```javascript
 const { Binding, State } = require("statemesh")
 ```
 
-Or it can be directly imported from the path:
+Or:
 ```javascript
-const { Binding, State } = require("./path-to-module/statemesh.cjs")
+const { Binding, State } = require("./path-to-module/statemesh.js")
 ```
 
 
-For web, it can also be imported from path. StateMesh relies on ES modules, any script that references it must use type="module" as shown below:
+Web:
+```javascript
+<script src="https://cdn.jsdelivr.net/npm/statemesh/dist/statemesh.min.js"> </script>
+```
+
+Es6,
 ```javascript
 <script type="module">
-    import { Binding, State } from "./path-to-module/statemesh.mjs"
+    import { Binding, State } from "https://cdn.jsdelivr.net/npm/statemesh/dist/statemesh.module.js"
 </script>
 ```
 

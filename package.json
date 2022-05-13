@@ -1,6 +1,6 @@
 {
     "name": "statemesh",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "State manager.",
     "author": "Firat Kiral",
     "license": "MIT",
@@ -28,7 +28,10 @@
         "test": "node examples/node/main"
     },
     "dependencies": {
-        "undokit": "latest"
+        "copy-webpack-plugin": "^10.2.4",
+        "undokit": "latest",
+        "webpack": "^5.72.1",
+        "webpack-cli": "^4.9.2"
     },
     "devDependencies": {
         "fs-extra": "^10.0.0",

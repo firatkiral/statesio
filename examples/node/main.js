@@ -1,4 +1,4 @@
-const { Binding, State } = require("../../dist/state.js");
+const { Binding, State } = require("../../dist/statemesh.js");
 
 //** ### Creating simple state */
 var userState = new State({

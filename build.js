@@ -1,24 +1,16 @@
+
 const { execSync } = require('child_process');
 const fs = require("fs-extra");
 
-function process(ext = "js") {
-    !fs.existsSync(`./dist`) && fs.mkdirSync(`./dist`);
-    fs.renameSync(`./build/statemesh.js`, `./dist/statemesh.${ext}`);
-    fs.renameSync(`./build/statemesh.d.ts`, `./dist/statemesh.d.ts`);
-}
-
-// Node
-console.log(`Node package compiling...`);
-execSync('npx tsc --module commonjs');
-process('js');
-console.log("Done\n");
-
-// web
-console.log(`Web package compiling...`);
+// tsc
+console.log(`TypeScript compiling...`);
 execSync('npx tsc');
-process('module.js');
-fs.rmSync(`./build`, { recursive: true });
 console.log("Done\n");
 
+// esm & web
+console.log(`Webpack compiling...`);
+execSync('npx webpack');
+console.log("Done\n");
 
+fs.rmSync(`./build`, { recursive: true });
 
