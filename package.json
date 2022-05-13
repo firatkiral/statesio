@@ -1,6 +1,6 @@
 {
     "name": "statemesh",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "State manager.",
     "author": "Firat Kiral",
     "license": "MIT",
@@ -22,8 +22,7 @@
         "examples/**/*"
     ],
     "scripts": {
-        "build": "node build.js",
-        "test": "node examples/node/main"
+        "build": "node build.js"
     },
     "dependencies": {},
     "devDependencies": {
