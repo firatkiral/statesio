@@ -23,13 +23,13 @@ const { Binding, State } = require("./path-to-module/statemesh.js")
 
 Web:
 ```javascript
-<script src="https://cdn.jsdelivr.net/npm/statemesh/dist/statemesh.min.js"> </script>
+<script src="https://cdn.jsdelivr.net/npm/statemesh@latest/dist/statemesh.min.js"> </script>
 ```
 
 Es6,
 ```javascript
 <script type="module">
-    import { Binding, State } from "https://cdn.jsdelivr.net/npm/statemesh/dist/statemesh.module.js"
+    import { Binding, State } from "https://cdn.jsdelivr.net/npm/statemesh@latest/dist/statemesh.module.js"
 </script>
 ```
 
