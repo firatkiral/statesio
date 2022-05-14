@@ -9,7 +9,7 @@ export class State<T>{
 
     #name: string
 
-    constructor(cache?: T, name?: string) {
+    constructor(name?: string, cache?: T) {
         this.cache = cache
         this.#name = name || ''
     }
@@ -23,14 +23,14 @@ export class State<T>{
         return this.#name
     }
 
-    addChangeListener(listener: (val: T | undefined) => void, id?: string) {
+    addChangeListener(listener: (val: T | undefined) => void) {
         if (this.changeListeners.indexOf(listener) === -1) {
             this.changeListeners.push(listener)
-            listener(this.get())
+            // listener(this.get())
         }
 
         return {
-            listener: listener,
+            listener,
             destroy: () => {
                 this.removeChangeListener(listener)
             }
@@ -53,10 +53,10 @@ export class State<T>{
         return this
     }
 
-    addListener(listener: () => void, id?: string) {
+    addInvalidationListener(listener: () => void) {
         if (this.listeners.indexOf(listener) === -1) {
             this.listeners.push(listener)
-            listener()
+            // listener()
         }
 
         return {
@@ -67,7 +67,7 @@ export class State<T>{
         }
     }
 
-    removeListener(listener: () => void) {
+    removeInvalidationListener(listener: () => void) {
         let index = this.listeners.indexOf(listener)
         if (index !== -1) {
             this.listeners.splice(index, 1)
@@ -76,11 +76,15 @@ export class State<T>{
         return this
     }
 
-    clearListeners() {
+    clearInvalidationListeners() {
         for (let idx in this.listeners) {
             this.removeChangeListener(this.listeners[0])
         }
         return this
+    }
+
+    isValid() {
+        return this.valid
     }
 
     protected validate() {
@@ -94,12 +98,13 @@ export class State<T>{
         if (this.valid) {
             this.valid = false
             this.onInvalidate()
-            for (let listener of this.changeListeners) {
-                listener(this.get())
-            }
+
             for (let listener of this.listeners) {
                 listener()
             }
+        }
+        for (let listener of this.changeListeners) {
+            listener(this.get())
         }
     }
 
@@ -153,8 +158,8 @@ export class Binding<T> extends State<T> {
     [key: string]: any
     #inputs: State<any>[] = []
 
-    constructor(computeFn?: (...args: any) => T | undefined, name?: string) {
-        super(undefined, name)
+    constructor(name?: string, computeFn?: (...args: any) => T | undefined) {
+        super(name)
         this.setComputeFn(computeFn)
     }
 
@@ -177,6 +182,7 @@ export class Binding<T> extends State<T> {
     }
 
     removeStateAt(idx: number) {
+        delete this[this.#inputs[idx].getName()]
         this.#inputs[idx].removeChangeListener(this.hook)
         this.#inputs.splice(idx, 1)
         this.invalidate()
@@ -231,7 +237,7 @@ interface Mesh {
 export class StateMesh extends Binding<Mesh> {
 
     constructor(name: string) {
-        super(undefined, name)
+        super(name)
     }
 
     compute(...args: any) {

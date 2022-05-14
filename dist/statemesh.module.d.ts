@@ -6,21 +6,22 @@ export declare class State<T> {
     incoming?: State<T>;
     protected hook: (property: T | undefined) => void;
     protected cache?: T;
-    constructor(cache?: T, name?: string);
+    constructor(name?: string, cache?: T);
     setName(name: string): this;
     getName(): string;
-    addChangeListener(listener: (val: T | undefined) => void, id?: string): {
+    addChangeListener(listener: (val: T | undefined) => void): {
         listener: (val: T | undefined) => void;
         destroy: () => void;
     };
     removeChangeListener(listener: (val: T | undefined) => void): this;
     clearChangeListeners(): this;
-    addListener(listener: () => void, id?: string): {
+    addListener(listener: () => void): {
         listener: () => void;
         destroy: () => void;
     };
     removeListener(listener: () => void): this;
     clearListeners(): this;
+    isValid(): boolean;
     protected validate(): void;
     protected invalidate(): void;
     onInvalidate(): void;
@@ -35,7 +36,7 @@ export declare class State<T> {
 export declare class Binding<T> extends State<T> {
     #private;
     [key: string]: any;
-    constructor(computeFn?: (...args: any) => T | undefined, name?: string);
+    constructor(name?: string, computeFn?: (...args: any) => T | undefined);
     addState(...inputs: State<any>[]): this;
     removeState(...inputs: State<any>[]): this;
     removeStateAt(idx: number): this;
