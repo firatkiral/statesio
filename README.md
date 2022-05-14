@@ -1,4 +1,4 @@
-# StateMesh - A State Manager for JavaScript
+# StateMesh - Lightweight State Manager
 
 This library provides powerful and lightweight state machine with support for lazy evaluation, immediate evaluation, nested states and value caching.
 Any change on the states propagates to the app so app can react to the change at time of the change or wait until the end of the app loop.
@@ -67,27 +67,27 @@ userState.set({
 
 ```
 
-## StateMesh
+## StateGroup
 
-StateMesh allows us to create nested states. We can think of it as a container for all states.
-We can create a tree of states by adding StateMeshes recursively. In this example we'll create a simple
+StateGroup allows us to create nested states. We can think of it as a container for all states.
+We can create a tree of states by adding StateGroups recursively. In this example we'll create a simple
 app with basic states.
 
 ```javascript
-const appState = new StateMesh().addState(
+const appState = new StateGroup().addState(
     new State("user", {
         username: 'johndoe',
         email: 'johndoe@example.com',
         membership: 'basic'
     }),
-    new StateMesh("project").addState(
+    new StateGroup("project").addState(
         new State("details", {
             name: 'My Project',
             description: 'This is my project'
         }),
         new State("coverUrl", "./cover.png"),
         new State("assets", ["./img.png", "./img2.png"]),
-        new StateMesh("settings").addState(
+        new StateGroup("settings").addState(
             new State("theme", "light"),
             new State("fontSize", 16),
             new State("fontFamily", "monospace"),

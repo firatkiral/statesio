@@ -15,12 +15,12 @@ export declare class State<T> {
     };
     removeChangeListener(listener: (val: T | undefined) => void): this;
     clearChangeListeners(): this;
-    addListener(listener: () => void): {
+    addInvalidationListener(listener: () => void): {
         listener: () => void;
         destroy: () => void;
     };
-    removeListener(listener: () => void): this;
-    clearListeners(): this;
+    removeInvalidationListener(listener: () => void): this;
+    clearInvalidationListeners(): this;
     isValid(): boolean;
     protected validate(): void;
     protected invalidate(): void;
@@ -33,25 +33,17 @@ export declare class State<T> {
     set(newValue: T): this;
     get(): T | undefined;
 }
-export declare class Binding<T> extends State<T> {
+export declare class StateGroup extends State<any> {
     #private;
     [key: string]: any;
-    constructor(name?: string, computeFn?: (...args: any) => T | undefined);
+    constructor(name?: string, computeFn?: (...args: any) => any);
     addState(...inputs: State<any>[]): this;
     removeState(...inputs: State<any>[]): this;
     removeStateAt(idx: number): this;
     clearStates(): this;
     getStates(): State<any>[];
-    set(newValue: T): this;
-    get(): T | undefined;
-    compute(...args: any): T | undefined;
-    setComputeFn(computeFn?: (...args: any) => T | undefined): this;
+    set(newValue: any): this;
+    get(): any;
+    compute(...args: any): any;
+    setComputeFn(computeFn?: (...args: any) => any): this;
 }
-interface Mesh {
-    [key: string]: any;
-}
-export declare class StateMesh extends Binding<Mesh> {
-    constructor(name: string);
-    compute(...args: any): Mesh;
-}
-export {};

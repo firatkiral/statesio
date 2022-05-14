@@ -154,11 +154,11 @@ export class State<T>{
 }
 
 
-export class Binding<T> extends State<T> {
+export class StateGroup extends State<any> {
     [key: string]: any
     #inputs: State<any>[] = []
 
-    constructor(name?: string, computeFn?: (...args: any) => T | undefined) {
+    constructor(name?: string, computeFn?: (...args: any) => any) {
         super(name)
         this.setComputeFn(computeFn)
     }
@@ -201,7 +201,7 @@ export class Binding<T> extends State<T> {
     }
 
 
-    set(newValue: T) {
+    set(newValue: any) {
         // does nothing, its here to override default invalidation
         return this
     }
@@ -220,32 +220,20 @@ export class Binding<T> extends State<T> {
         return this.#compute(...args)
     }
 
-    #computeDefault = (...args: any) => this.incoming ? this.incoming.get() : this.cache
-    #compute: (...args: any) => T | undefined = this.#computeDefault
+    #computeDefault = (...args: any) => {
+        if (this.incoming) return this.incoming.get()
 
-    setComputeFn(computeFn?: (...args: any) => T | undefined) {
-        this.#compute = computeFn ? computeFn : this.#computeDefault
-        this.invalidate()
-        return this
-    }
-}
-
-interface Mesh {
-    [key: string]: any
-}
-
-export class StateMesh extends Binding<Mesh> {
-
-    constructor(name: string) {
-        super(name)
-    }
-
-    compute(...args: any) {
-        let res: Mesh = {}
+        let res: any = {}
         for (const state of this.getStates()) {
             res[state.getName()] = state.get()
         }
-
         return res
+    }
+    #compute: (...args: any) => any = this.#computeDefault
+
+    setComputeFn(computeFn?: (...args: any) => any) {
+        this.#compute = computeFn ? computeFn : this.#computeDefault
+        this.invalidate()
+        return this
     }
 }

@@ -1,4 +1,4 @@
-const { Binding, State, StateMesh } = require("../../dist/statemesh.js");
+const { State, StateGroup } = require("../../dist/statemesh.js");
 
 
 //** ### Connecting states and setting custom computation */
@@ -24,7 +24,7 @@ var vecA = new State("vecA", new Vector(1, 1));
 var vecB = new State("vecB", new Vector(2, 2));
 var t = new State("t", .5);
 
-var multiplyState = new Binding();
+var multiplyState = new StateGroup();
 multiplyState.addState(vecA, vecB, t);
 
 // These inputs can be accessed by their name.

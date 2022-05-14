@@ -1,4 +1,4 @@
-const { Binding, State, StateMesh } = require("../../dist/statemesh.js");
+const { State, StateGroup } = require("../../dist/statemesh.js");
 
 // ### Getting Started
 
@@ -27,22 +27,22 @@ userState.set({
 //     membership: 'platinium'
 // }
 
-// Let's try nested states here, StateMesh is the container for all states.
+// Let's try nested states here, StateGroup is the container for all states.
 // We can create a tree of states by adding child StateMeshes.
-const appState = new StateMesh().addState(
+const appState = new StateGroup().addState(
     new State("user", {
         username: 'johndoe',
         email: 'johndoe@example.com',
         membership: 'basic'
     }),
-    new StateMesh("project").addState(
+    new StateGroup("project").addState(
         new State("details", {
             name: 'My Project',
             description: 'This is my project'
         }),
         new State("coverUrl", "./cover.png"),
         new State("assets", ["./img.png", "./img2.png"]),
-        new StateMesh("settings").addState(
+        new StateGroup("settings").addState(
             new State("theme", "light"),
             new State("fontSize", 16),
             new State("fontFamily", "monospace"),
@@ -50,7 +50,7 @@ const appState = new StateMesh().addState(
     )
 );
 
-// We can get all structured data by calling get() on the root StateMesh.
+// We can get all structured data by calling get() on the root StateGroup.
 console.log(appState.get());
 // output:
 // {
