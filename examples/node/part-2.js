@@ -1,4 +1,4 @@
-const { State, StateGroup } = require("../../dist/statemesh.js");
+const { State, StateGroup } = require("../../dist/statesio.js");
 
 
 //** ### Connecting states and setting custom computation */
@@ -39,7 +39,7 @@ multiplyState.setComputeFn((v1, v2, t) => {
     return out;
 });
 
-multiplyState.addChangeListener(val => {
+multiplyState.subscribe(val => {
     console.log("Interpolated value:", val);
 });
 

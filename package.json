@@ -1,6 +1,6 @@
 {
-    "name": "statemesh",
-    "version": "1.0.8",
+    "name": "statesio",
+    "version": "1.0.9",
     "description": "State manager.",
     "author": "Firat Kiral",
     "license": "MIT",
@@ -14,9 +14,9 @@
         "signal",
         "callback"
     ],
-    "main": "dist/statemesh.js",
-    "types": "dist/statemesh.d.ts",
-    "module": "dist/statemesh.module.js",
+    "main": "dist/statesio.js",
+    "types": "dist/statesio.d.ts",
+    "module": "dist/statesio.module.js",
     "files": [
         "dist/*",
         "examples/**/*"
@@ -34,10 +34,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/firatkiral/statemesh.git"
+        "url": "git+https://github.com/firatkiral/statesio.git"
     },
     "bugs": {
-        "url": "https://github.com/firatkiral/statemesh/issues"
+        "url": "https://github.com/firatkiral/statesio/issues"
     },
-    "homepage": "https://github.com/firatkiral/statemesh#readme"
+    "homepage": "https://github.com/firatkiral/statesio#readme"
 }

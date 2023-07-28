@@ -1,3 +1,5 @@
+declare type Listener = () => void;
+declare type ChangeListener<K> = (val: K | undefined) => void;
 export declare class State<T> {
     #private;
     valid: boolean;
@@ -9,18 +11,28 @@ export declare class State<T> {
     constructor(name?: string, cache?: T);
     setName(name: string): this;
     getName(): string;
-    addChangeListener(listener: (val: T | undefined) => void): {
-        listener: (val: T | undefined) => void;
+    /**
+     * Listeners are called with new value by validating the state when state is changed.
+     * @param listener
+     * @returns Object with listener and destroy method
+     */
+    subscribe(listener: ChangeListener<T>): {
+        listener: ChangeListener<T>;
         destroy: () => void;
     };
-    removeChangeListener(listener: (val: T | undefined) => void): this;
-    clearChangeListeners(): this;
-    addInvalidationListener(listener: () => void): {
-        listener: () => void;
+    removeSubscriber(listener: ChangeListener<T>): this;
+    clearSubscribers(): this;
+    /**
+     * Listeners are called when state is invalidated without validation of the state. New value is not passed to the listener.
+     * @param listener
+     * @returns Object with listener and destroy method
+     */
+    listen(listener: Listener): {
+        listener: Listener;
         destroy: () => void;
     };
-    removeInvalidationListener(listener: () => void): this;
-    clearInvalidationListeners(): this;
+    removeListener(listener: Listener): this;
+    clearListeners(): this;
     isValid(): boolean;
     protected validate(): void;
     protected invalidate(): void;
@@ -47,3 +59,4 @@ export declare class StateGroup extends State<any> {
     compute(...args: any): any;
     setComputeFn(computeFn?: (...args: any) => any): this;
 }
+export {};

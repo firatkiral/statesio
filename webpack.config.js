@@ -2,7 +2,7 @@ const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
 
 let options = {
-    entry: './build/statemesh.js',
+    entry: './build/statesio.js',
     // target: ['web', 'es6'],
     mode: "production",
     optimization: {
@@ -22,10 +22,10 @@ module.exports = [
     {
         ...options,
         output: {
-            filename: 'statemesh.min.js',
+            filename: 'statesio.min.js',
             path: path.resolve(__dirname, 'dist'),
             library: {
-                name: 'statemesh',
+                name: 'statesio',
                 type: 'window',
                 // type: 'var', // if three is global namespace
                 // export: ['default'],
@@ -35,7 +35,7 @@ module.exports = [
     {
         ...options,
         output: {
-            filename: 'statemesh.module.js',
+            filename: 'statesio.module.js',
             path: path.resolve(__dirname, 'dist'),
             library: {
                 type: 'module'
@@ -48,7 +48,7 @@ module.exports = [
     {
         ...options,
         output: {
-            filename: 'statemesh.js',
+            filename: 'statesio.js',
             path: path.resolve(__dirname, 'dist'),
             library: {
                 type: 'commonjs'
@@ -57,8 +57,8 @@ module.exports = [
         plugins: [
             new CopyPlugin({
                 patterns: [
-                    { from: './build/statemesh.d.ts', to: 'statemesh.d.ts' },
-                    { from: './build/statemesh.d.ts', to: 'statemesh.module.d.ts' },
+                    { from: './build/statesio.d.ts', to: 'statesio.d.ts' },
+                    { from: './build/statesio.d.ts', to: 'statesio.module.d.ts' },
                 ],
             }),
         ],

@@ -1,4 +1,4 @@
-# StateMesh - Lightweight State Manager
+# StatesIO - Lightweight State Manager
 
 This library provides powerful and lightweight state machine with support for lazy evaluation, immediate evaluation, nested states and value caching.
 Any change on the states propagates to the app so app can react to the change at time of the change or wait until the end of the app loop.
@@ -9,28 +9,28 @@ Nested state allows to define complex state trees with ease.
 
 
 ```shell
-$ npm install statemesh
+$ npm install statesio
 ```
 
 node:
 ```javascript
-const { Binding, State } = require("statemesh")
+const { Binding, State } = require("statesio")
 ```
 
 or:
 ```javascript
-const { Binding, State } = require("./path-to-module/statemesh.js")
+const { Binding, State } = require("./path-to-module/statesio.js")
 ```
 
 web:
 ```javascript
-<script src="https://cdn.jsdelivr.net/npm/statemesh@latest/dist/statemesh.min.js"> </script>
+<script src="https://cdn.jsdelivr.net/npm/statesio@latest/dist/statesio.min.js"> </script>
 ```
 
 es6:
 ```javascript
 <script type="module">
-    import { Binding, State } from "https://cdn.jsdelivr.net/npm/statemesh@latest/dist/statemesh.module.js"
+    import { Binding, State } from "https://cdn.jsdelivr.net/npm/statesio@latest/dist/statesio.module.js"
 </script>
 ```
 
@@ -48,7 +48,7 @@ var userState = new State("user", {
 });
 
 // Listen changes on userState, this way we'll be notified any time userState is changed.
-userState.addChangeListener(user => {
+userState.subscribe(user => {
     console.log(`User has been updated:\n`, user);
 });
 
@@ -128,7 +128,7 @@ Adding a listener to the root appState won't make sense, because all other state
 it will cause unnecessary overhead on the ui engine. Instead we can add a change listener to the each setting state separately.
 
 ```javascript
-appState.project.settings.theme.addChangeListener(theme => {
+appState.project.settings.theme.subscribe(theme => {
     console.log("Dark mode has been updated: ", theme);
 })
 
@@ -140,7 +140,7 @@ appState.project.settings.theme.set("dark");
 Its possible to add a listener to the settings state, you'll get all settings at once by calling get() on the settings state or adding a listener to the settings state.
 
 ```javascript
-appState.project.settings.addChangeListener(settings => {
+appState.project.settings.subscribe(settings => {
     console.log("Settings have been updated: ", settings);
 })
 appState.project.settings.fontSize.set(18)
@@ -192,7 +192,7 @@ multiplyState.setComputeFn((v1, v2, t) => {
     return out;
 });
 
-multiplyState.addChangeListener(val => {
+multiplyState.subscribe(val => {
     console.log("Interpolated value:", val);
 });
 
@@ -207,7 +207,7 @@ console.log(multiplyState.get());
 
 Compute function will receive all connected state values as parameter with the connection order. In this example `setComputeFn` passes vecA, vecB and t values as parameter since these are the only connected states.
 
-Another thing is StateMesh uses lazy evaluation algorithm. It means value won't be computed until it is called. It will be computed only once at the first call. Any other consecutive calls will receive cached value. This saves lots of computation power and time if app has heavy calculations or has too many states. If we try to call multiplyState again you'll notice that it wont print 'output computed.' again since its calling it from cache.
+Another thing is StatesIO uses lazy evaluation algorithm. It means value won't be computed until it is called. It will be computed only once at the first call. Any other consecutive calls will receive cached value. This saves lots of computation power and time if app has heavy calculations or has too many states. If we try to call multiplyState again you'll notice that it wont print 'output computed.' again since its calling it from cache.
 
 ## Conclusion
-We have covered the basics of StateMesh. We can use it to create complex state trees and connect them together. We can also use it to create custom state values that can be computed based on other states. It's covers many of the modern use cases and helps to create fast and flexible apps. Sometimes small libraries like this more suited for light apps and prototypes instead of using advanced ones with heavy boilerplate codes and long learning curve. As a coding enthusiast, I hope you'll find this library useful and I hope you'll use it in your projects.
+We have covered the basics of StatesIO. We can use it to create complex state trees and connect them together. We can also use it to create custom state values that can be computed based on other states. It's covers many of the modern use cases and helps to create fast and flexible apps. Sometimes small libraries like this more suited for light apps and prototypes instead of using advanced ones with heavy boilerplate codes and long learning curve. As a coding enthusiast, I hope you'll find this library useful and I hope you'll use it in your projects.

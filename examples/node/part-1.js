@@ -1,4 +1,4 @@
-const { State, StateGroup } = require("../../dist/statemesh.js");
+const { State, StateGroup } = require("../../dist/statesio.js");
 
 // ### Getting Started
 
@@ -10,7 +10,7 @@ var userState = new State("user", {
 });
 
 // Listen changes on userState, this way we'll be notified any time userState is changed.
-userState.addChangeListener(user => {
+userState.subscribe(user => {
     console.log(`User has been updated:\n`, user);
 });
 
@@ -28,7 +28,7 @@ userState.set({
 // }
 
 // Let's try nested states here, StateGroup is the container for all states.
-// We can create a tree of states by adding child StateMeshes.
+// We can create a tree of states by adding child StatesIO.
 const appState = new StateGroup().addState(
     new State("user", {
         username: 'johndoe',
@@ -77,7 +77,7 @@ console.log(appState.get());
 // Say we have UI engine and it needs to update itself based on the setting state changes.
 // Adding a listener to the appState won't make sense, because all other state changes will trigger UI update and 
 // it will cause unnecessary overhead on the UI Engine. Instead we can add a change listener to the settings state.
-appState.project.settings.theme.addChangeListener(theme => {
+appState.project.settings.theme.subscribe(theme => {
     console.log("Dark mode has been updated: ", theme);
 })
 
@@ -87,7 +87,7 @@ appState.project.settings.theme.set("dark");
 
 
 // Its possible add listener to the settings state, you'll get all settings at once by calling get() on the settings state.
-appState.project.settings.addChangeListener(settings => {
+appState.project.settings.subscribe(settings => {
     console.log("Settings have been updated: ", settings);
 })
 appState.project.settings.fontSize.set(18)

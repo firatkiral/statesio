@@ -1,7 +1,12 @@
+type Listener = () => void
+type ChangeListener<K> = (val: K | undefined) => void
+
+
+
 export class State<T>{
     valid: boolean = true
     private changeListeners: Array<(property: T | undefined) => void> = []
-    private listeners: Array<() => void> = []
+    private listeners: Array<Listener> = []
 
     incoming?: State<T>
     protected hook: (property: T | undefined) => void = () => this.invalidate()
@@ -23,21 +28,25 @@ export class State<T>{
         return this.#name
     }
 
-    addChangeListener(listener: (val: T | undefined) => void) {
+    /**
+     * Listeners are called with new value by validating the state when state is changed.
+     * @param listener 
+     * @returns Object with listener and destroy method
+     */
+    subscribe(listener: ChangeListener<T>) {
         if (this.changeListeners.indexOf(listener) === -1) {
             this.changeListeners.push(listener)
-            // listener(this.get())
         }
 
         return {
             listener,
             destroy: () => {
-                this.removeChangeListener(listener)
+                this.removeSubscriber(listener)
             }
         }
     }
 
-    removeChangeListener(listener: (val: T | undefined) => void) {
+    removeSubscriber(listener: ChangeListener<T>) {
         let index = this.changeListeners.indexOf(listener)
         if (index !== -1) {
             this.changeListeners.splice(index, 1)
@@ -46,28 +55,32 @@ export class State<T>{
         return this
     }
 
-    clearChangeListeners() {
+    clearSubscribers() {
         for (let idx in this.changeListeners) {
-            this.removeChangeListener(this.changeListeners[0])
+            this.removeSubscriber(this.changeListeners[0])
         }
         return this
     }
 
-    addInvalidationListener(listener: () => void) {
+    /**
+     * Listeners are called when state is invalidated without validation of the state. New value is not passed to the listener.
+     * @param listener 
+     * @returns Object with listener and destroy method
+     */
+    listen(listener: Listener) {
         if (this.listeners.indexOf(listener) === -1) {
             this.listeners.push(listener)
-            // listener()
         }
 
         return {
             listener: listener,
             destroy: () => {
-                this.removeChangeListener(listener)
+                this.removeSubscriber(listener)
             }
         }
     }
 
-    removeInvalidationListener(listener: () => void) {
+    removeListener(listener: Listener) {
         let index = this.listeners.indexOf(listener)
         if (index !== -1) {
             this.listeners.splice(index, 1)
@@ -76,9 +89,9 @@ export class State<T>{
         return this
     }
 
-    clearInvalidationListeners() {
+    clearListeners() {
         for (let idx in this.listeners) {
-            this.removeChangeListener(this.listeners[0])
+            this.removeSubscriber(this.listeners[0])
         }
         return this
     }
@@ -118,12 +131,12 @@ export class State<T>{
     }
 
     setConnection(incoming?: State<T>) {
-        this.incoming?.removeChangeListener(this.hook)
+        this.incoming?.removeSubscriber(this.hook)
         this.incoming = undefined
 
         if (incoming) {
             this.incoming = incoming
-            incoming.addChangeListener(this.hook)
+            incoming.subscribe(this.hook)
         }
 
         this.invalidate()
@@ -165,7 +178,7 @@ export class StateGroup extends State<any> {
 
     addState(...inputs: State<any>[]) {
         inputs.forEach(input => {
-            input.addChangeListener(this.hook)
+            input.subscribe(this.hook)
             this.#inputs.push(input)
             this[input.getName()] = input
         })
@@ -183,7 +196,7 @@ export class StateGroup extends State<any> {
 
     removeStateAt(idx: number) {
         delete this[this.#inputs[idx].getName()]
-        this.#inputs[idx].removeChangeListener(this.hook)
+        this.#inputs[idx].removeSubscriber(this.hook)
         this.#inputs.splice(idx, 1)
         this.invalidate()
         return this

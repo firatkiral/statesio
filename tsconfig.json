@@ -13,6 +13,6 @@
         "dist",
     ],
     "include": [
-        "src/statemesh.ts"
+        "src/statesio.ts"
     ]
 }
