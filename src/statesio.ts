@@ -151,9 +151,9 @@ export class State<T>{
         return this.incoming
     }
 
-    set(newValue: T) {
+    set(newValue: T, invalidate = true) {
         this.cache = newValue
-        this.invalidate()
+        invalidate && this.invalidate()
         return this
     }
 
@@ -215,7 +215,10 @@ export class StateGroup extends State<any> {
 
 
     set(newValue: any) {
-        // does nothing, its here to override default invalidation
+        Object.keys(newValue).forEach(key => {
+            this[key].set(newValue[key], false)
+        })
+        this.invalidate()
         return this
     }
 

@@ -42,7 +42,7 @@ export declare class State<T> {
     setConnection(incoming?: State<T>): this;
     isConnected(): boolean;
     getIncoming(): State<T> | undefined;
-    set(newValue: T): this;
+    set(newValue: T, invalidate?: boolean): this;
     get(): T | undefined;
 }
 export declare class StateGroup extends State<any> {
