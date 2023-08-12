@@ -14,12 +14,12 @@ $ npm install statesio
 
 node:
 ```javascript
-const { Binding, State } = require("statesio")
+const { StateGroup, State } = require("statesio")
 ```
 
 or:
 ```javascript
-const { Binding, State } = require("./path-to-module/statesio.js")
+const { StateGroup, State } = require("./path-to-module/statesio.js")
 ```
 
 web:
@@ -30,7 +30,7 @@ web:
 es6:
 ```javascript
 <script type="module">
-    import { Binding, State } from "https://cdn.jsdelivr.net/npm/statesio@latest/dist/statesio.module.js"
+    import { StateGroup, State } from "https://cdn.jsdelivr.net/npm/statesio@latest/dist/statesio.module.js"
 </script>
 ```
 
@@ -155,7 +155,7 @@ appState.project.settings.fontSize.set(18)
 ## Connecting states and setting custom computation
 
 Sometimes you want to compute a value based on the values of other states. 
-You can use the Binding class that allows you to set custom computation function for this purpose.
+You can use the StateGroup class that allows you to set custom computation function for this purpose.
 In this example we'll do some basic vector computations by linearly interpolating two vectors.
 
 ```javascript
@@ -177,7 +177,7 @@ var vecA = new State("vecA", new Vector(1, 1));
 var vecB = new State("vecB", new Vector(2, 2));
 var t = new State("t", .5);
 
-var multiplyState = new Binding();
+var multiplyState = new StateGroup();
 multiplyState.addState(vecA, vecB, t);
 
 // These inputs can be accessed by their name.
@@ -196,7 +196,7 @@ multiplyState.subscribe(val => {
     console.log("Interpolated value:", val);
 });
 
-// When we change any state, the binding will be invalidated and listener will be notified.
+// When we change any state, the stateGroup will be invalidated and listener will be notified.
 t.set(.8);
 
 // Since computation already done, get() will return the cached value and won't print 'output computed'
