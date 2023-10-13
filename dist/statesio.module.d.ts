@@ -54,7 +54,7 @@ export declare class StateGroup extends State<any> {
     removeStateAt(idx: number): this;
     clearStates(): this;
     getStates(): State<any>[];
-    set(newValue: any): this;
+    set(newValue: any, invalidate?: boolean): this;
     get(): any;
     compute(...args: any): any;
     setComputeFn(computeFn?: (...args: any) => any): this;
